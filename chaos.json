@@ -1,0 +1,43 @@
+{
+  "ChaosConfiguration": {
+    "Orchestration": "Sequential",
+    "Duration": 60,
+    "RunDelay": 0,
+    "Repeat": 0,
+    "CpuPressure": {
+      "Duration": 15,
+      "PressureLevel": 90,
+      "RunOrder": 1 
+    }, 
+    "MemoryPressure": {
+      "Duration": 15,
+      "PressureLevel": 90,
+      "RunOrder": 2 
+    },
+    "NetworkEmulation": {
+      "Duration": 15,
+      "EmulationType": "Latency",
+      "LatencyDelay" : 1000,
+      "RunOrder": 0,
+      "TargetEndpoints": {
+        "Endpoint": [
+          {
+            "Port": 443,
+            "Hostname": "www.bing.com",
+            "Protocol": "ALL"
+          },
+          {
+            "Port": 80,
+            "Hostname": "www.msn.com",
+            "Protocol": "ALL"
+          },
+          {
+            "Port": 443,
+            "Hostname": "www.google.com",
+            "Protocol": "ALL"
+          }
+        ]
+      }
+    }
+  }
+}

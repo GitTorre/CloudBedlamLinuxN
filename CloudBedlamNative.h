@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include <fstream>
 #include <vector>
 #include "json11.hpp"
@@ -9,6 +8,10 @@
 #include <algorithm>
 #include <map>
 #include <sstream>
+#include <stdio.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <string>
 
 #define	ALL_PROTOCOL 0
 #define	ICMP 1
@@ -79,6 +82,53 @@ inline wstring Hostname2Ips(const wstring &hostname, const wstring &port)
 
     return L"";
 }
+
+inline string hostname2ips(string &hostname)
+{
+    struct addrinfo * _addrinfo;
+    struct addrinfo * _res;
+    char _address[INET6_ADDRSTRLEN];
+    int err = 0;
+    string ips;
+
+    err = getaddrinfo(hostname.c_str(), nullptr, nullptr, &_addrinfo);
+
+    if(err != 0)
+    {
+        printf("error: %s\n", gai_strerror(err));
+        return "";
+    }
+
+    for(_res = _addrinfo; _res != nullptr; _res = _res->ai_next)
+    {
+        if(_res->ai_family == AF_INET)
+        {
+
+            if(inet_ntop(AF_INET, &((struct sockaddr_in *)_res->ai_addr)->sin_addr, _address, sizeof(_address)) == nullptr)
+            {
+                return "";
+            }
+            string s(_address);
+            wstring loginfo = L"\nIPv4 - ";
+            wstring ip(s.begin(), s.end());
+            loginfo += ip;
+            ips += s + ",";
+        }
+        else if(_res->ai_family == AF_INET6)
+        {
+            if(inet_ntop(AF_INET6, &((struct sockaddr_in *)_res->ai_addr)->sin_addr, _address, sizeof(_address)) == nullptr)
+            {
+                return "";
+            }
+            string s(_address);
+            wstring loginfo = L"\nIPv6 - ";
+            wstring ip(s.begin(), s.end());
+            loginfo += ip;
+            ips += s + ",";
+        }
+    }
+}
+
 
 inline vector<wstring> split(const wstring &s, wchar_t delim)
 {
@@ -289,11 +339,32 @@ inline void RunNetworkEmulation()
 			//LOGERROR(g_logger, L"Must specifiy a duration for network emulation...");
 			return;
 		}
+        //Parse endpoints, build ip string...
+        bool isArr = g_json["ChaosConfiguration"]["NetworkEmulation"]["TargetEndpoints"]["Endpoint"].is_array();
+        wstring hostnames = L"{ ";
+        string ips;
+        if (isArr)
+        {
+            auto arrEndpoints = g_json["ChaosConfiguration"]["NetworkEmulation"]["TargetEndpoints"]["Endpoint"].array_items();
+
+            for (size_t i = 0; i < arrEndpoints.size(); i++)
+            {
+                string hostname = arrEndpoints[i]["Hostname"].string_value();
+                //For logging... TODO...
+                wstring wshostname = wstring(hostname.begin(), hostname.end());
+                hostnames += wshostname + L" ";
+
+                //Get ips from endpoint hostname, build the ips string to pass to bash script...
+                ips += hostname2ips(hostname);
+
+            }
+        }
 		
 		string s_emType = g_json["ChaosConfiguration"]["NetworkEmulation"]["EmulationType"].string_value();
 		wstring netemLogType;
 		EmulationType emType = MapStringToEmulationType[s_emType];
-		
+		string bashCmd;
+
 		switch (emType)
 		{
 			case Bandwidth:
@@ -304,9 +375,11 @@ inline void RunNetworkEmulation()
 				int dbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["BandwidthDownstreamSpeed"].int_value();
 				auto DownlinkBandwidthBps = dbw;
 				auto UplinkBandwidthBps = upbw;
+                bashCmd = "Bash/netem-bandwidth.sh -ips=" + ips.substr(0, ips.size()-1) + " " +
+                          to_string(dbw) + " " + to_string(profile.Duration) + "s";
 				break;
 			}
-			case Disconnect:
+			case Disconnect: //TODO for linux...
 			{
 				//profile.Type = Disconnect;
 				netemLogType = L"Disconnection emulation";
@@ -337,24 +410,6 @@ inline void RunNetworkEmulation()
 					//LOGINFO(g_logger, L"Emulation type unrecognized.");
 					return;
 				}
-		}
-
-		auto isArr = g_json["ChaosConfiguration"]["NetworkEmulation"]["TargetEndpoints"]["Endpoint"].is_array();
-		wstring hostnames = L"{ ";
-		
-		if (isArr)
-		{
-			auto arrEndpoints = g_json["ChaosConfiguration"]["NetworkEmulation"]["TargetEndpoints"]["Endpoint"].array_items();
-			profile.Endpoints.resize(arrEndpoints.size());
-		
-			for (size_t i = 0; i < arrEndpoints.size(); i++)
-			{
-				profile.Endpoints.at(i).Port = arrEndpoints[i]["Port"].int_value();
-				profile.Endpoints.at(i).Hostname = arrEndpoints[i]["Hostname"].string_value();
-				profile.Endpoints.at(i).Protocol = MapStringToProtocol[arrEndpoints[i]["Protocol"].string_value()];
-				wstring wshostname = wstring(arrEndpoints[i]["Hostname"].string_value().begin(), arrEndpoints[i]["Hostname"].string_value().end());
-				hostnames += wshostname + L" ";
-			}
 		}
 
 		auto loginfo = L"Starting " + netemLogType + L" for " + hostnames + L" }";

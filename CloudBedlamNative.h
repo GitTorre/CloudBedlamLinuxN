@@ -20,6 +20,10 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/types.h>
+#include "spdlog/spdlog.h"
+#include <iostream>
+#include <memory>
+#include <sys/stat.h>
 
 #define	ALL_PROTOCOL 0
 #define	ICMP 1
@@ -29,9 +33,12 @@
 #define	AH 51		//! Flag for authentication header, RFC 2402
 #define	ICMPv6 58
 
+#define SPDLOG_TRACE_ON
+#define SPDLOG_DEBUG_ON
+
 using namespace std;
 using namespace json11;
-
+//TODO Add an mt logger...
 /// <summary>
 /// Enumeration of connection type to filter.
 /// </summary>
@@ -174,6 +181,7 @@ MemoryPressure Mem;
 NetworkEmulationProfile Netem;
 bool g_bCPUConfig, g_bMemConfig, g_bNetemConfig = false;
 vector<pair<void(*)(),int>> seqrunVec;
+std::shared_ptr<spdlog::logger> g_logger;
 
 enum Orchestration
 {
@@ -228,14 +236,13 @@ inline bool RunOperation(string command)
     pid_t pid;
     printf("before fork\n");
     int ret, status;
-    //convert string to char*...
-    //char *cstr = command[0u];
     auto s = Split(command, ' ');
     char* c[] = {
             &s[0][0u],
             &s[1][0u],
             &s[2][0u],
-            &s[3][0u]
+            &s[3][0u],
+            &s[4][0u]
     };
     if((pid = fork()) < 0)
     {
@@ -247,17 +254,25 @@ inline bool RunOperation(string command)
         /* this is the child */
         printf("the child's pid is: %d\n", getpid());
         char* cc = nullptr;
+        char* cc1 = nullptr;
+        //e.g., netem bandwidth, loss, corruption...
         if(s.size() == 4)
         {
             cc = c[3];
         }
+        //e.g., netem Reorder cmd...
+        if(s.size() == 5)
+        {
+            cc = c[3];
+            cc1 = c[4];
+        }
 
-        if(execl("/bin/bash", "-c", c[0], c[1], c[2], cc, nullptr))
+        if(execl("/bin/bash", "-c", c[0], c[1], c[2], cc, cc1, nullptr))
         {
             return true;
         }
 
-        printf("if this line is printed then execv failed\n");
+        printf("execl failed\n");
         return false;
     }
     else
@@ -265,10 +280,10 @@ inline bool RunOperation(string command)
         /* this is the parent */
         if (-1 == (ret = wait(&status)))
         {
-            printf ("parent:error\n");
+            printf ("parent: error\n");
             return false;
         }
-        printf("parent continues execution\n");
+        printf("continuing parent execution\n");
         return true;
     }
 }
@@ -297,20 +312,21 @@ inline void RunCpuPressure()
 			Cpu.PressureLevel = level;
 		}
 		Cpu.CmdArgs += to_string(Cpu.PressureLevel) + " " + to_string(Cpu.Duration);
-		wstring loginfo = L"Starting CPU pressure: " + wstring(to_wstring(level));
-		//LOGINFO(g_logger, loginfo.c_str());
+		string loginfo = "Starting CPU pressure: " + to_string(level);
+		g_logger->info(loginfo);
+
 		if (RunOperation(Cpu.CmdArgs))
 		{
-			//LOGINFO(g_logger, L"Stopping CPU pressure.")
+			 g_logger->info("Stopping CPU pressure.");
 		}
 		else
 		{
-			//LOGERROR(g_logger, L"CPU Pressure run failed.")
+			 g_logger->info("CPU Pressure run failed.");
 		}
 	}
 	else
 	{
-		//LOGINFO(g_logger, L"No CPU pressure specified...");
+		 g_logger->info("No CPU pressure specified...");
 	}
 }
 //Memory pressure...
@@ -337,21 +353,21 @@ inline void RunMemoryPressure()
 			Mem.PressureLevel = level;
 		}
 		Mem.CmdArgs += to_string(Mem.PressureLevel) + " " + to_string(Mem.Duration);
-		wstring loginfo = L"Starting memory pressure: " + wstring(to_wstring(level));
-		//LOGINFO(g_logger, wstring(loginfo.begin(), loginfo.end()).c_str());
+		string loginfo = "Starting memory pressure: " + to_string(level);
+		g_logger->info(loginfo);
 
 		if (RunOperation(Mem.CmdArgs))
 		{
-			//LOGINFO(g_logger, L"Stopping Memory pressure.")
+			 g_logger->info("Stopping Memory pressure.");
 		}
 		else
 		{
-			//LOGERROR(g_logger, L"Memory Pressure run failed.")
+			 g_logger->info("Memory Pressure run failed.");
 		}
 	}
 	else
 	{
-		//LOGINFO(g_logger, L"No Memory pressure specified...");
+		 g_logger->info("No Memory pressure specified...");
 	}
 }
 // Network emulation... 
@@ -373,12 +389,12 @@ inline void RunNetworkEmulation()
 		}
 		else
 		{
-			//LOGERROR(g_logger, L"Must specifiy a duration for network emulation...");
+			g_logger->error("Must specify a duration for network emulation...");
 			return;
 		}
         //Parse endpoints, build ip string...
         bool isArr = g_json["ChaosConfiguration"]["NetworkEmulation"]["TargetEndpoints"]["Endpoint"].is_array();
-        wstring hostnames = L"{ ";
+        string hostnames = "{ ";
         string ips;
         if (isArr)
         {
@@ -388,8 +404,8 @@ inline void RunNetworkEmulation()
             {
                 string hostname = arrEndpoints[i]["Hostname"].string_value();
                 //For logging... TODO...
-                wstring wshostname = wstring(hostname.begin(), hostname.end());
-                hostnames += wshostname + L" ";
+                //wstring wshostname = wstring(hostname.begin(), hostname.end());
+                hostnames += hostname + " ";
 
                 //Get ips from endpoint hostname, build the ips string to pass to bash script...
                 ips += hostname2ips(hostname);
@@ -400,7 +416,7 @@ inline void RunNetworkEmulation()
         ips = ips.substr(0, ips.size() - 1);
 
 		string s_emType = g_json["ChaosConfiguration"]["NetworkEmulation"]["EmulationType"].string_value();
-		wstring netemLogType;
+		string netemLogType;
 		EmulationType emType = MapStringToEmulationType[s_emType];
 		string bashCmd;
 
@@ -409,7 +425,7 @@ inline void RunNetworkEmulation()
 			case Bandwidth:
 			{
 				Netem.Type = Bandwidth;
-				netemLogType = L"Bandwidth emulation";
+				netemLogType = "Bandwidth emulation";
 				int upbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["BandwidthUpstreamSpeed"].int_value();
 				int dbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["BandwidthDownstreamSpeed"].int_value();
 
@@ -419,7 +435,7 @@ inline void RunNetworkEmulation()
             case Corruption:
             {
                 Netem.Type = Corruption;
-                netemLogType = L"Corruption emulation";
+                netemLogType = "Corruption emulation";
                 auto pt = g_json["ChaosConfiguration"]["NetworkEmulation"]["PacketPercentage"].int_value() * 100; //e.g., 0.05 * 100 = 5...
                 bashCmd = "Bash/netem-corrupt.sh -ips=" + ips + " " +
                        to_string(pt) + " " + to_string(Netem.Duration) + "s";
@@ -439,7 +455,7 @@ inline void RunNetworkEmulation()
 			case Loss:
 			{
 				Netem.Type = Loss;
-                netemLogType = L"Loss (Random) emulation";
+                netemLogType = "Loss (Random) emulation";
 				auto inloss = g_json["ChaosConfiguration"]["NetworkEmulation"]["RandomLossRate"].int_value();
                 auto lossRate = inloss * 100; //e.g., 0.05 * 100 = 5...
 
@@ -449,7 +465,7 @@ inline void RunNetworkEmulation()
 			case Latency:
 			{
 				Netem.Type = Latency;
-                netemLogType = L"Latency emulation";
+                netemLogType = "Latency emulation";
 				int delay = g_json["ChaosConfiguration"]["NetworkEmulation"]["LatencyDelay"].int_value();
 
                 bashCmd = "Bash/netem-latency.sh -ips=" + ips + " " + to_string(delay) + "ms " + " " + to_string(Netem.Duration) + "s";
@@ -458,7 +474,7 @@ inline void RunNetworkEmulation()
             case Reorder:
             {
                 Netem.Type = Reorder;
-                netemLogType = L"Reorder emulation";
+                netemLogType = "Reorder emulation";
                 auto correlationpt = g_json["ChaosConfiguration"]["NetworkEmulation"]["CorrelationPercentage"].int_value() * 100;
                 auto packetpt = g_json["ChaosConfiguration"]["NetworkEmulation"]["PacketPercentage"].int_value() * 100;
 
@@ -467,39 +483,38 @@ inline void RunNetworkEmulation()
             }
 			default:
             {
-                //LOGINFO(g_logger, L"Emulation type unrecognized.");
+                g_logger->info("Emulation type unrecognized.");
                 return;
             }
 		}
 
-		auto loginfo = L"Starting " + netemLogType + L" for " + hostnames + L" }";
-		//LOGINFO(g_logger, loginfo.c_str());
+		string loginfo = "Starting " + netemLogType + " for " + hostnames + " }";
+        g_logger->info(loginfo);
+
         if(RunOperation(bashCmd))
         {
             //LOG.....
         }
-		//LOGINFO(g_logger, L"Stopping network emulation")
+        g_logger->info("Stopping network emulation");
 	}
 	else
 	{
-		//LOGINFO(g_logger, L"No Network emulation specified...");
+        g_logger->info("No Network emulation specified...");
 	}
 }
 
-inline void InitGlobalPaths()
+inline void InitGlobals()
 {
-	//TCHAR NPath[MAX_PATH];
-	//GetModuleFileName(nullptr, NPath, sizeof(NPath));
-	//GetCurrentDirectory(MAX_PATH, NPath);
-	//g_execPath = wstring(NPath);
-	//wstring dir = g_execPath + L"\\bedlamlogs";
+    struct stat st = {0};
 
-	//if (CreateDirectory(dir.c_str(), nullptr) || ERROR_ALREADY_EXISTS == GetLastError())
-	//{
-		//g_logfilepath = dir + L"\\CloudBedlam.log";
-		//g_logger.AddOutputStream(new wofstream(g_logfilepath.c_str()), true, LogLevel::Info);
-	//	g_logger.AddOutputStream(new wofstream(g_logfilepath.c_str()), true, LogLevel::Error);
-	//}
+    if (stat("bedlamlogs", &st) == -1)
+    {
+        mkdir("bedlamlogs", 0700);
+    }
+
+    g_logger = spdlog::basic_logger_mt("basic_logger", "bedlamlogs/bedlam.log");
+    g_logger->info("Some log message");
+
 }
 
 inline bool ParseConfigurationObjectAndInitialize()
@@ -534,7 +549,7 @@ inline bool ParseConfigurationObjectAndInitialize()
                 g_orchestration = MapStringToOrchestration[orc];
                 string orch = "Orchestration: " + orc;
 
-                //LOGINFO(g_logger, wstring(orch.begin(), orch.end()).c_str());
+                g_logger->info(orch);
             }
             auto isRepeat = g_json["ChaosConfiguration"]["Repeat"].is_number();
             if (isRepeat)
@@ -601,7 +616,7 @@ inline bool ParseConfigurationObjectAndInitialize()
         }
 		return true;
 	}
-	//LOGERROR(g_logger, L"Invalid Json (Not a ChaosConfiguration...). Make sure you supplied the correct format...");
+	g_logger->error("Invalid Json (Not a ChaosConfiguration...). Make sure you supplied the correct format...");
 	return false;
 }
 

@@ -4,18 +4,17 @@
 #endif
 #include "CloudBedlamNative.h"
 
-
+namespace spd = spdlog;
 int main()
 {
-	//Set paths for json file and g_logger output locations...
-	InitGlobalPaths();
-	//LOGINFO(g_logger, L"Starting Bedlam...");
+	InitGlobals();
+	g_logger->info("Starting bedlam...");
 	//Make bedlam. Repeat if specified in config...
 	for (auto i = 0; i < g_repeat + 1; i++)
 	{
 		//Parse config, set operation objects, run...
 		SetOperationsFromJsonAndRun();
 	}
-	//LOGINFO(g_logger, L"The End");
+	g_logger->info("The End");
 	return 0;
 }

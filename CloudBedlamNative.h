@@ -16,6 +16,10 @@
 #include <zconf.h>
 #include <signal.h>
 #include <cstring>
+#include <stdlib.h>
+#include <errno.h>
+#include <unistd.h>
+#include <sys/types.h>
 
 #define	ALL_PROTOCOL 0
 #define	ICMP 1
@@ -206,39 +210,69 @@ map<string, NetworkType> MapStringToNetworkType =
 	{ "IPv6", Ipv6 },
 };
 
+inline vector<string> Split(const string &s, char delim)
+{
+    vector<string> elems;
+    stringstream ss;
+    ss.str(s);
+    string item;
+    while (getline(ss, item, delim))
+    {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
 inline bool RunOperation(string command, int duration = 0)
 {
-	if(duration > 0 && duration/1000 < 1)
-	{
-		duration *= 1000; //to ms...
-	}
-
+    pid_t pid;
+    printf("before fork\n");
+    int ret, status;
     //convert string to char*...
-    char *cstr = &command[0u];
-
-    int status, ret, pid;
-
-    pid = fork();
-
-    if (pid == 0)
+    //char *cstr = command[0u];
+    auto s = Split(command, ' ');
+    char* c[] = {
+            &s[0][0u],
+            &s[1][0u],
+            &s[2][0u],
+            &s[3][0u]
+    };
+    if((pid = fork()) < 0)
     {
-        //child process...
-        execv("/usr/bin/bash", &cstr);
-    }
-
-    if ((ret = waitpid(pid, &status, 0)) == -1)
-    {
-        printf ("parent:error\n");
+        printf("an error occurred while forking\n");
         return false;
     }
-
-    if (ret == pid)
+    else if(pid == 0)
     {
-        printf ("Parent: Child process waited for.\n");
-    }
+        /* this is the child */
+        printf("the child's pid is: %d\n", getpid());
+        char* cc = nullptr;
+        if(s.size() == 4)
+        {
+            cc = c[3];
+        }
 
-	return true;
+        if(execl("/bin/bash", "-c", c[0], c[1], c[2], cc, nullptr))
+        {
+            return true;
+        }
+
+        printf("if this line is printed then execv failed\n");
+        return false;
+    }
+    else
+    {
+        /* this is the parent */
+        if (-1 == (ret = wait(&status)))
+        {
+            printf ("parent:error\n");
+            return false;
+        }
+        printf("parent continues execution\n");
+        return true;
+    }
 }
+
 //CPU
 inline void RunCpuPressure()
 {
@@ -265,7 +299,7 @@ inline void RunCpuPressure()
 		Cpu.CmdArgs += to_string(Cpu.PressureLevel) + " " + to_string(Cpu.Duration);
 		wstring loginfo = L"Starting CPU pressure: " + wstring(to_wstring(level));
 		//LOGINFO(g_logger, loginfo.c_str());
-		if (RunOperation(Cpu.CmdArgs))
+		if (RunOperation(Cpu.CmdArgs, Cpu.Duration*1000))
 		{
 			//LOGINFO(g_logger, L"Stopping CPU pressure.")
 		}
@@ -306,7 +340,7 @@ inline void RunMemoryPressure()
 		wstring loginfo = L"Starting memory pressure: " + wstring(to_wstring(level));
 		//LOGINFO(g_logger, wstring(loginfo.begin(), loginfo.end()).c_str());
 
-		if (RunOperation(Mem.CmdArgs))
+		if (RunOperation(Mem.CmdArgs, Mem.Duration*1000))
 		{
 			//LOGINFO(g_logger, L"Stopping Memory pressure.")
 		}
@@ -440,7 +474,7 @@ inline void RunNetworkEmulation()
 
 		auto loginfo = L"Starting " + netemLogType + L" for " + hostnames + L" }";
 		//LOGINFO(g_logger, loginfo.c_str());
-        RunOperation(bashCmd);
+        RunOperation(bashCmd, Netem.Duration*1000);
 		//LOGINFO(g_logger, L"Stopping network emulation")
 	}
 	else

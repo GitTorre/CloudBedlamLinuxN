@@ -223,7 +223,7 @@ inline vector<string> Split(const string &s, char delim)
     return elems;
 }
 
-inline bool RunOperation(string command, int duration = 0)
+inline bool RunOperation(string command)
 {
     pid_t pid;
     printf("before fork\n");
@@ -299,7 +299,7 @@ inline void RunCpuPressure()
 		Cpu.CmdArgs += to_string(Cpu.PressureLevel) + " " + to_string(Cpu.Duration);
 		wstring loginfo = L"Starting CPU pressure: " + wstring(to_wstring(level));
 		//LOGINFO(g_logger, loginfo.c_str());
-		if (RunOperation(Cpu.CmdArgs, Cpu.Duration*1000))
+		if (RunOperation(Cpu.CmdArgs))
 		{
 			//LOGINFO(g_logger, L"Stopping CPU pressure.")
 		}
@@ -340,7 +340,7 @@ inline void RunMemoryPressure()
 		wstring loginfo = L"Starting memory pressure: " + wstring(to_wstring(level));
 		//LOGINFO(g_logger, wstring(loginfo.begin(), loginfo.end()).c_str());
 
-		if (RunOperation(Mem.CmdArgs, Mem.Duration*1000))
+		if (RunOperation(Mem.CmdArgs))
 		{
 			//LOGINFO(g_logger, L"Stopping Memory pressure.")
 		}
@@ -474,7 +474,10 @@ inline void RunNetworkEmulation()
 
 		auto loginfo = L"Starting " + netemLogType + L" for " + hostnames + L" }";
 		//LOGINFO(g_logger, loginfo.c_str());
-        RunOperation(bashCmd, Netem.Duration*1000);
+        if(RunOperation(bashCmd))
+        {
+            //LOG.....
+        }
 		//LOGINFO(g_logger, L"Stopping network emulation")
 	}
 	else

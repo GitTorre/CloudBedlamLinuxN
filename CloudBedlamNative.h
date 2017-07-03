@@ -513,7 +513,7 @@ inline void InitGlobals()
     }
 
     g_logger = spdlog::basic_logger_mt("basic_logger", "bedlamlogs/bedlam.log");
-    g_logger->info("Some log message");
+    g_logger->info("globals initialized and set...");
 
 }
 

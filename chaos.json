@@ -16,8 +16,8 @@
     },
     "NetworkEmulation": {
       "Duration": 15,
-      "EmulationType": "Latency",
-      "LatencyDelay" : 1000,
+      "EmulationType": "Bandwidth",
+      "BandwidthDownstreamSpeed" : 56,
       "RunOrder": 0,
       "TargetEndpoints": {
         "Endpoint": [

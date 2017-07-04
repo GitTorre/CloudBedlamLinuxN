@@ -238,7 +238,7 @@ inline vector<string> Split(const string &s, char delim)
     }
     return elems;
 }
-//TODO Add logging from the child processes (bash scripts echo information...)...
+
 inline bool RunOperation(string command)
 {
     //capture stdout from child...

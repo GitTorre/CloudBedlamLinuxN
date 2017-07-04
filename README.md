@@ -76,8 +76,11 @@ For example, the JSON configuration below sequentially runs (according to specif
 clone...
 whomever:~/work/src$ git clone https://github.com/gittorre/CBLinuxN.git
 whomever:~/work/src$ cd CBLinuxN
-build...(really fast and easy with gcc... you can also use cmake...)
+build...(really fast and easy with g++... you can also use cmake...)
+g++:
 whomever:~/work/src/CBLinuxN$ g++ -std=c++11 CloudBedlamNative.cpp json11.cpp -lpthread -o CBLinuxN
+cmake:
+whomever:~/work/src/CBLinuxN$ cmake --build /home/ct/work/src/CBLinuxN/cmake-build-debug --target CBLinuxN -- -j 4
 run... (this has run as sudo...)
 whomever:~/work/src/CBLinuxN$ sudo ./CBLinuxN
 </code></pre>

@@ -200,7 +200,6 @@ enum Orchestration
 Orchestration g_orchestration;
 
 // string->object enum/objects mappers...
-static map<string, Orchestration> OrchwstringValues;
 map<string, Orchestration> MapStringToOrchestration =
 {
 	{ "Concurrent", Concurrent },
@@ -208,17 +207,17 @@ map<string, Orchestration> MapStringToOrchestration =
 	{ "Sequential", Sequential }
 };
 
-static map<string, int> ProtocolStringValues;
 map<string, int> MapStringToProtocol =
 {
 	{ "ALL", ALL_PROTOCOL },
+    { "AH", AH },
 	{ "ESP",  ESP },
 	{ "ICMP", ICMP },
 	{ "ICMPv6", ICMPv6 },
 	{ "TCP",  TCP },
 	{ "UDP",  UDP }
 };
-static map<string, NetworkType> NetworkTypeStringValues;
+
 map<string, NetworkType> MapStringToNetworkType =
 {
 	{ "ALL", ALL_NETWORK },
@@ -253,7 +252,7 @@ inline bool RunOperation(string command)
     }
 
     pid_t pid;
-    //printf("before fork\n");
+
     int ret, status;
     auto s = Split(command, ' ');
     char* c[] = {
@@ -708,7 +707,8 @@ inline void MakeBedlam()
 {
 	switch(g_orchestration)
 	{
-		case Concurrent:
+        //TODO: This impl doesn't work for linux...
+        case Concurrent:
 		{
 			//Run all functions concurrently, blocking the main thread (which we want...)...
 			vector<thread> threads;

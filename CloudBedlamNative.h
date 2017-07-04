@@ -1,5 +1,6 @@
 #pragma once
 
+#include <errno.h>
 #include <fstream>
 #include <vector>
 #include "json11.hpp"
@@ -240,8 +241,19 @@ inline vector<string> Split(const string &s, char delim)
 //TODO Add logging from the child processes (bash scripts echo information...)...
 inline bool RunOperation(string command)
 {
+    //capture stdout from child...
+
+    int filedes[2];
+    bool canCaptureop = true;
+    if (pipe(filedes) == -1)
+    {
+        perror("pipe");
+        //log... don't die...
+        canCaptureop = false;
+    }
+
     pid_t pid;
-    printf("before fork\n");
+    //printf("before fork\n");
     int ret, status;
     auto s = Split(command, ' ');
     char* c[] = {
@@ -253,13 +265,19 @@ inline bool RunOperation(string command)
     };
     if((pid = fork()) < 0)
     {
-        printf("an error occurred while forking\n");
+        g_logger->error("an error occurred while forking!");
         return false;
     }
     else if(pid == 0)
     {
         /* this is the child */
-        printf("the child's pid is: %d\n", getpid());
+        if(canCaptureop)
+        {
+            while ((dup2(filedes[1], STDOUT_FILENO) == -1) && (errno == EINTR)) {}
+            close(filedes[1]);
+            close(filedes[0]);
+        }
+        //printf("the child's pid is: %d\n", getpid());
         char* cc = nullptr;
         char* cc1 = nullptr;
         //e.g., netem bandwidth, loss, corruption...
@@ -284,13 +302,45 @@ inline bool RunOperation(string command)
     }
     else
     {
-        /* this is the parent */
+        if(canCaptureop)
+        {
+            close(filedes[1]);
+            char buffer[4096] = { '\0' };
+            while (1)
+            {
+                ssize_t count = read(filedes[0], buffer, sizeof(buffer));
+                if (count == -1)
+                {
+                    if (errno == EINTR)
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        perror("read");
+                        //Log...
+                    }
+                }
+                else if (count == 0)
+                {
+                    break;
+                }
+                else
+                {
+                    int size = sizeof(buffer);
+                    size = std::remove(buffer, buffer + size, '\n') - buffer;
+                    g_logger->info(buffer);
+                }
+            }
+            close(filedes[0]);
+        }
+        //wait for proc to end...
         if (-1 == (ret = wait(&status)))
         {
             printf ("parent: error\n");
             return false;
         }
-        printf("continuing parent execution\n");
+        //printf("continuing parent execution\n");
         return true;
     }
 }

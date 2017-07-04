@@ -11,7 +11,6 @@ Unlike, say, Netflix's ChaosMonkey, shooting down VM instances isn't the interes
 
 This is meant to run chaos experiments <i>inside</i> VMs as a way to experiment close to your code and help you identify resiliency bugs in your design and implementation.
 
-
 ### Easy to use 
 
 Step 0.
@@ -72,9 +71,7 @@ For example, the JSON configuration below sequentially runs (according to specif
   }
 }
 </pre></code>
-
 ## Building and Running
-
 <pre><code>
 clone...
 whomever:~/work/src$ git clone https://github.com/gittorre/CBLinuxN.git

@@ -3,7 +3,7 @@
     "Orchestration": "Sequential",
     "Duration": 60,
     "RunDelay": 0,
-    "Repeat": 0,
+    "Repeat": 1,
     "CpuPressure": {
       "Duration": 15,
       "PressureLevel": 90,

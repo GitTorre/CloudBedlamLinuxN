@@ -95,6 +95,7 @@ struct NetworkEmulationProfile
     int Duration = 0;
     int RunOrder = 0;
     EmulationType Type;
+    string CmdArgs = "";
 };
 
 inline string hostname2ips(const string &hostname)
@@ -160,28 +161,34 @@ struct CpuPressure
 {
 	int PressureLevel = 0;
 	int Duration = 0;
-	//int RunOrder = 0;
+	int RunOrder = 0;
 	string CmdArgs = "Bash/stress-cpu.sh ";
 };
 struct MemoryPressure
 {
 	int PressureLevel = 0;
 	int Duration = 0;
-	//int RunOrder = 0;
+	int RunOrder = 0;
 	string CmdArgs = "Bash/stress-mem.sh ";
 };
 
 //Globals...
-string g_logfilepath;
-int g_repeat = 0;
+
 Json g_json = nullptr;
-int g_delay;
+int g_delay = 0;
+int g_repeat = 0;
+//Bedlam operations...
 CpuPressure Cpu;
 MemoryPressure Mem;
 NetworkEmulationProfile Netem;
-bool g_bCPUConfig, g_bMemConfig, g_bNetemConfig = false;
+//Operational settings...
+bool g_bCPUConfig, g_bMemConfig, g_bNetemConfig, g_bRepeating = false;
+string g_loginfoNetem, g_loginfoCpu, g_logInfoMem = "";
+//container used for sequential orchestration of bedlam operations...
 vector<pair<void(*)(),int>> seqrunVec;
+//Logger...
 std::shared_ptr<spdlog::logger> g_logger;
+
 
 enum Orchestration
 {
@@ -191,7 +198,7 @@ enum Orchestration
 };
 Orchestration g_orchestration;
 
-// wstring->object enum/objects mappers...
+// string->object enum/objects mappers...
 static map<string, Orchestration> OrchwstringValues;
 map<string, Orchestration> MapStringToOrchestration =
 {
@@ -230,7 +237,7 @@ inline vector<string> Split(const string &s, char delim)
     }
     return elems;
 }
-
+//TODO Add logging from the child processes (bash scripts echo information...)...
 inline bool RunOperation(string command)
 {
     pid_t pid;
@@ -291,216 +298,230 @@ inline bool RunOperation(string command)
 //CPU
 inline void RunCpuPressure()
 {
-	if (g_bCPUConfig == false)
+	if (!g_bCPUConfig)
 	{
 		return;
 	}
-	bool isCpuObj = g_json["ChaosConfiguration"]["CpuPressure"].is_object();
-	if (isCpuObj)
-	{
-		auto isDuration = g_json["ChaosConfiguration"]["CpuPressure"]["Duration"].is_number();
-		if (isDuration)
-		{
-			auto duration = g_json["ChaosConfiguration"]["CpuPressure"]["Duration"].int_value();
-			Cpu.Duration = duration;
-		}
-		auto isLevel = g_json["ChaosConfiguration"]["CpuPressure"]["PressureLevel"].is_number();
-		int level = 0;
-		if (isLevel)
-		{
-			level = g_json["ChaosConfiguration"]["CpuPressure"]["PressureLevel"].int_value();
-			Cpu.PressureLevel = level;
-		}
-		Cpu.CmdArgs += to_string(Cpu.PressureLevel) + " " + to_string(Cpu.Duration);
-		string loginfo = "Starting CPU pressure: " + to_string(level);
-		g_logger->info(loginfo);
 
-		if (RunOperation(Cpu.CmdArgs))
-		{
-			 g_logger->info("Stopping CPU pressure.");
-		}
-		else
-		{
-			 g_logger->info("CPU Pressure run failed.");
-		}
-	}
-	else
-	{
-		 g_logger->info("No CPU pressure specified...");
-	}
+    if(!g_bRepeating)
+    {
+        bool isCpuObj = g_json["ChaosConfiguration"]["CpuPressure"].is_object();
+        if (isCpuObj)
+        {
+            auto isDuration = g_json["ChaosConfiguration"]["CpuPressure"]["Duration"].is_number();
+            if (isDuration)
+            {
+                auto duration = g_json["ChaosConfiguration"]["CpuPressure"]["Duration"].int_value();
+                Cpu.Duration = duration;
+            }
+            auto isLevel = g_json["ChaosConfiguration"]["CpuPressure"]["PressureLevel"].is_number();
+            int level = 0;
+            if (isLevel)
+            {
+                level = g_json["ChaosConfiguration"]["CpuPressure"]["PressureLevel"].int_value();
+                Cpu.PressureLevel = level;
+            }
+            Cpu.CmdArgs += to_string(Cpu.PressureLevel) + " " + to_string(Cpu.Duration);
+            g_loginfoCpu = "Starting CPU pressure: " + to_string(Cpu.PressureLevel) + "% " + to_string(Cpu.Duration) + "s";
+        }
+    }
+    g_logger->info(g_loginfoCpu);
+    //Run...
+    if (RunOperation(Cpu.CmdArgs))
+    {
+        g_logger->info("CPU pressure operation succeeded.");
+    }
+    else
+    {
+        g_logger->info("CPU pressure operation failed.");
+    }
 }
 //Memory pressure...
 inline void RunMemoryPressure()
 {
-	if (g_bMemConfig == false)
+	if (!g_bMemConfig)
 	{
 		return;
 	}
-	bool isMemObj = g_json["ChaosConfiguration"]["MemoryPressure"].is_object();
-	if (isMemObj)
-	{
-		auto isDuration = g_json["ChaosConfiguration"]["MemoryPressure"]["Duration"].is_number();
-		if (isDuration)
-		{
-			auto duration = g_json["ChaosConfiguration"]["MemoryPressure"]["Duration"].int_value();
-			Mem.Duration = duration;
-		}
-		auto isLevel = g_json["ChaosConfiguration"]["MemoryPressure"]["PressureLevel"].is_number();
-		int level = 0;
-		if (isLevel)
-		{
-			level = g_json["ChaosConfiguration"]["MemoryPressure"]["PressureLevel"].int_value();
-			Mem.PressureLevel = level;
-		}
-		Mem.CmdArgs += to_string(Mem.PressureLevel) + " " + to_string(Mem.Duration);
-		string loginfo = "Starting memory pressure: " + to_string(level);
-		g_logger->info(loginfo);
 
-		if (RunOperation(Mem.CmdArgs))
-		{
-			 g_logger->info("Stopping Memory pressure.");
-		}
-		else
-		{
-			 g_logger->info("Memory Pressure run failed.");
-		}
-	}
-	else
-	{
-		 g_logger->info("No Memory pressure specified...");
-	}
+    if(!g_bRepeating)
+    {
+        bool isMemObj = g_json["ChaosConfiguration"]["MemoryPressure"].is_object();
+        if (isMemObj)
+        {
+            auto isDuration = g_json["ChaosConfiguration"]["MemoryPressure"]["Duration"].is_number();
+            if (isDuration)
+            {
+                auto duration = g_json["ChaosConfiguration"]["MemoryPressure"]["Duration"].int_value();
+                Mem.Duration = duration;
+            }
+            auto isLevel = g_json["ChaosConfiguration"]["MemoryPressure"]["PressureLevel"].is_number();
+            int level = 0;
+            if (isLevel)
+            {
+                level = g_json["ChaosConfiguration"]["MemoryPressure"]["PressureLevel"].int_value();
+                Mem.PressureLevel = level;
+            }
+            Mem.CmdArgs += to_string(Mem.PressureLevel) + " " + to_string(Mem.Duration);
+            g_logInfoMem = "Starting memory pressure: " + to_string(Mem.PressureLevel) + "% " + to_string(Mem.Duration) + "s";
+        }
+    }
+    g_logger->info(g_logInfoMem);
+    //Run...
+    if (RunOperation(Mem.CmdArgs))
+    {
+        g_logger->info("Memory pressure operation succeeded.");
+    }
+    else
+    {
+        g_logger->info("Memory pressure operation failed.");
+    }
 }
 // Network emulation... 
 inline void RunNetworkEmulation()
 {
-	if(g_bNetemConfig == false)
+	if(!g_bNetemConfig)
 	{
 		return;
 	}
 
-	bool isNetemObj = g_json["ChaosConfiguration"]["NetworkEmulation"].is_object();
-	if (isNetemObj)
+    if(!g_bRepeating)
     {
-		bool isDuration = g_json["ChaosConfiguration"]["NetworkEmulation"]["Duration"].is_number();
-		if(isDuration)
-		{
-			int duration = g_json["ChaosConfiguration"]["NetworkEmulation"]["Duration"].int_value();
-            Netem.Duration = duration;
-		}
-		else
-		{
-			g_logger->error("Must specify a duration for network emulation...");
-			return;
-		}
-        //Parse endpoints, build ip string...
-        bool isArr = g_json["ChaosConfiguration"]["NetworkEmulation"]["TargetEndpoints"]["Endpoint"].is_array();
-        string hostnames = "{ ";
-        string ips;
-        if (isArr)
+        bool isNetemObj = g_json["ChaosConfiguration"]["NetworkEmulation"].is_object();
+        if (isNetemObj)
         {
-            auto arrEndpoints = g_json["ChaosConfiguration"]["NetworkEmulation"]["TargetEndpoints"]["Endpoint"].array_items();
-
-            for (size_t i = 0; i < arrEndpoints.size(); i++)
+            bool isDuration = g_json["ChaosConfiguration"]["NetworkEmulation"]["Duration"].is_number();
+            if (isDuration)
             {
-                string hostname = arrEndpoints[i]["Hostname"].string_value();
-                //For logging... TODO...
-                //wstring wshostname = wstring(hostname.begin(), hostname.end());
-                hostnames += hostname + " ";
-
-                //Get ips from endpoint hostname, build the ips string to pass to bash script...
-                ips += hostname2ips(hostname);
-
+                int duration = g_json["ChaosConfiguration"]["NetworkEmulation"]["Duration"].int_value();
+                Netem.Duration = duration;
             }
-        }
-        //remove trailing character (in our case, a comma will always be the last char...)
-        ips = ips.substr(0, ips.size() - 1);
-
-		string s_emType = g_json["ChaosConfiguration"]["NetworkEmulation"]["EmulationType"].string_value();
-		string netemLogType;
-		EmulationType emType = MapStringToEmulationType[s_emType];
-		string bashCmd;
-
-		switch (emType)
-		{
-			case Bandwidth:
-			{
-				Netem.Type = Bandwidth;
-				netemLogType = "Bandwidth emulation";
-				int upbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["BandwidthUpstreamSpeed"].int_value();
-				int dbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["BandwidthDownstreamSpeed"].int_value();
-
-                bashCmd = "Bash/netem-bandwidth.sh -ips=" + ips + " " + to_string(dbw) + " " + to_string(Netem.Duration) + "s";
-				break;
-			}
-            case Corruption:
+            else
             {
-                Netem.Type = Corruption;
-                netemLogType = "Corruption emulation";
-                auto pt = g_json["ChaosConfiguration"]["NetworkEmulation"]["PacketPercentage"].int_value() * 100; //e.g., 0.05 * 100 = 5...
-                bashCmd = "Bash/netem-corrupt.sh -ips=" + ips + " " +
-                       to_string(pt) + " " + to_string(Netem.Duration) + "s";
-                break;
-            }
-			case Disconnect: //TODO...
-			{
-				/*
-                netemLogType = L"Disconnection emulation";
-
-				auto PeriodicDisconnectionRate = g_json["ChaosConfiguratioin"]["NetworkEmulation"]["PeriodicDisconnectionRate"].int_value();
-				auto ConnectionTime = (unsigned int) g_json["ChaosConfiguration"]["NetworkEmulation"]["ConnectionTime"].int_value();
-				auto DisconnectionTime = (unsigned int) g_json["ChaosConfiguration"]["NetworkEmulation"]["DisconnectionTime"].int_value();
-				*/
-                break;
-			}
-			case Loss:
-			{
-				Netem.Type = Loss;
-                netemLogType = "Loss (Random) emulation";
-				auto inloss = g_json["ChaosConfiguration"]["NetworkEmulation"]["RandomLossRate"].int_value();
-                auto lossRate = inloss * 100; //e.g., 0.05 * 100 = 5...
-
-                bashCmd = "Bash/netem-loss.sh -ips=" + ips + " " + to_string(lossRate) + " " + to_string(Netem.Duration);
-				break;
-			}
-			case Latency:
-			{
-				Netem.Type = Latency;
-                netemLogType = "Latency emulation";
-				int delay = g_json["ChaosConfiguration"]["NetworkEmulation"]["LatencyDelay"].int_value();
-
-                bashCmd = "Bash/netem-latency.sh -ips=" + ips + " " + to_string(delay) + "ms " + " " + to_string(Netem.Duration) + "s";
-				break;
-			}
-            case Reorder:
-            {
-                Netem.Type = Reorder;
-                netemLogType = "Reorder emulation";
-                auto correlationpt = g_json["ChaosConfiguration"]["NetworkEmulation"]["CorrelationPercentage"].int_value() * 100;
-                auto packetpt = g_json["ChaosConfiguration"]["NetworkEmulation"]["PacketPercentage"].int_value() * 100;
-
-                bashCmd = "Bash/netem-reorder.sh -ips=" + ips + " " + to_string(packetpt) + " " + to_string(correlationpt) + " " + to_string(Netem.Duration);
-                break;
-            }
-			default:
-            {
-                g_logger->info("Emulation type unrecognized.");
+                g_logger->error("Must specify a duration for network emulation...");
                 return;
             }
-		}
+            //Parse endpoints, build ip string...
+            bool isArr = g_json["ChaosConfiguration"]["NetworkEmulation"]["TargetEndpoints"]["Endpoint"].is_array();
+            string hostnames = "{ ";
+            string ips;
+            if (isArr)
+            {
+                auto arrEndpoints = g_json["ChaosConfiguration"]["NetworkEmulation"]["TargetEndpoints"]["Endpoint"].array_items();
 
-		string loginfo = "Starting " + netemLogType + " for " + hostnames + " }";
-        g_logger->info(loginfo);
+                for (size_t i = 0; i < arrEndpoints.size(); i++)
+                {
+                    string hostname = arrEndpoints[i]["Hostname"].string_value();
+                    //For logging... TODO...
+                    //wstring wshostname = wstring(hostname.begin(), hostname.end());
+                    hostnames += hostname + " ";
 
-        if(RunOperation(bashCmd))
-        {
-            //LOG.....
+                    //Get ips from endpoint hostname, build the ips string to pass to bash script...
+                    ips += hostname2ips(hostname);
+
+                }
+            }
+            //remove trailing character (in our case, a comma will always be the last char...)
+            ips = ips.substr(0, ips.size() - 1);
+
+            string s_emType = g_json["ChaosConfiguration"]["NetworkEmulation"]["EmulationType"].string_value();
+            string netemLogType;
+            EmulationType emType = MapStringToEmulationType[s_emType];
+            string bashCmd;
+
+            switch (emType)
+            {
+                case Bandwidth:
+                {
+                    Netem.Type = Bandwidth;
+                    netemLogType = "Bandwidth emulation";
+                    int upbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["BandwidthUpstreamSpeed"].int_value();
+                    int dbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["BandwidthDownstreamSpeed"].int_value();
+
+                    Netem.CmdArgs =
+                            "Bash/netem-bandwidth.sh -ips=" + ips + " " + to_string(dbw) + " " +
+                            to_string(Netem.Duration) +
+                            "s";
+                    break;
+                }
+                case Corruption:
+                {
+                    Netem.Type = Corruption;
+                    netemLogType = "Corruption emulation";
+                    auto pt = g_json["ChaosConfiguration"]["NetworkEmulation"]["PacketPercentage"].int_value() *
+                              100; //e.g., 0.05 * 100 = 5...
+                    Netem.CmdArgs = "Bash/netem-corrupt.sh -ips=" + ips + " " +
+                                    to_string(pt) + " " + to_string(Netem.Duration) + "s";
+                    break;
+                }
+                case Disconnect: //TODO...
+                {
+                    /*
+                    netemLogType = L"Disconnection emulation";
+
+                    auto PeriodicDisconnectionRate = g_json["ChaosConfiguratioin"]["NetworkEmulation"]["PeriodicDisconnectionRate"].int_value();
+                    auto ConnectionTime = (unsigned int) g_json["ChaosConfiguration"]["NetworkEmulation"]["ConnectionTime"].int_value();
+                    auto DisconnectionTime = (unsigned int) g_json["ChaosConfiguration"]["NetworkEmulation"]["DisconnectionTime"].int_value();
+                    */
+                    break;
+                }
+                case Loss:
+                {
+                    Netem.Type = Loss;
+                    netemLogType = "Loss (Random) emulation";
+                    auto inloss = g_json["ChaosConfiguration"]["NetworkEmulation"]["RandomLossRate"].int_value();
+                    auto lossRate = inloss * 100; //e.g., 0.05 * 100 = 5...
+
+                    Netem.CmdArgs =
+                            "Bash/netem-loss.sh -ips=" + ips + " " + to_string(lossRate) + " " +
+                            to_string(Netem.Duration);
+                    break;
+                }
+                case Latency:
+                {
+                    Netem.Type = Latency;
+                    netemLogType = "Latency emulation";
+                    int delay = g_json["ChaosConfiguration"]["NetworkEmulation"]["LatencyDelay"].int_value();
+
+                    Netem.CmdArgs = "Bash/netem-latency.sh -ips=" + ips + " " + to_string(delay) + "ms " + " " +
+                                    to_string(Netem.Duration) + "s";
+                    break;
+                }
+                case Reorder:
+                {
+                    Netem.Type = Reorder;
+                    netemLogType = "Reorder emulation";
+                    auto correlationpt =
+                            g_json["ChaosConfiguration"]["NetworkEmulation"]["CorrelationPercentage"].int_value() * 100;
+                    auto packetpt =
+                            g_json["ChaosConfiguration"]["NetworkEmulation"]["PacketPercentage"].int_value() * 100;
+
+                    Netem.CmdArgs = "Bash/netem-reorder.sh -ips=" + ips + " " + to_string(packetpt) + " " +
+                                    to_string(correlationpt) + " " + to_string(Netem.Duration);
+                    break;
+                }
+                default:
+                {
+                    g_logger->error("Emulation type unrecognized.");
+                    return;
+                }
+            }
+            g_loginfoNetem = "Starting " + netemLogType + " for " + hostnames + " }";
         }
-        g_logger->info("Stopping network emulation");
-	}
-	else
-	{
-        g_logger->info("No Network emulation specified...");
-	}
+    }
+    //Run operation...
+    g_logger->info(g_loginfoNetem);
+
+    if (RunOperation(Netem.CmdArgs))
+    {
+        g_logger->info("Netem run operation successful.");
+    }
+    else
+    {
+        g_logger->error("Netem run operation failed.");
+        return;
+    }
+    g_logger->info("Stopping network emulation");
 }
 
 inline void InitGlobals()
@@ -535,7 +556,7 @@ inline bool ParseConfigurationObjectAndInitialize()
 		}
 		else
 		{
-			//LOGERROR(g_logger, L"Can't open configuration file. Aborting...");
+			g_logger->error("Can't open configuration file. Aborting...");
 			exit(-1);
 		}
 
@@ -555,11 +576,13 @@ inline bool ParseConfigurationObjectAndInitialize()
             if (isRepeat)
             {
                 g_repeat = g_json["ChaosConfiguration"]["Repeat"].int_value();
+                g_logger->info("Repeat: " + to_string(g_repeat));
             }
             auto isDelay = g_json["ChaosConfiguration"]["RunDelay"].is_number();
             if (isDelay)
             {
                 g_delay = g_json["ChaosConfiguration"]["RunDelay"].int_value() * 1000;
+                g_logger->info("Delay: " + to_string(g_delay) + "ms");
                 sleep(g_delay);
             }
             //What's in the config?...
@@ -613,11 +636,17 @@ inline bool ParseConfigurationObjectAndInitialize()
                     }
                 }
             }
+            return true;
         }
-		return true;
+
+        g_logger->error("Invalid Json (Not a ChaosConfiguration...). Make sure you supplied the correct format...");
+        return false;
 	}
-	g_logger->error("Invalid Json (Not a ChaosConfiguration...). Make sure you supplied the correct format...");
-	return false;
+    else
+    {
+        g_bRepeating = true;
+        return true;
+    }
 }
 
 inline bool sort_pair_asc(const pair<void(*)(),int>& vec1, const pair<void(*)(), int>& vec2) 
@@ -678,6 +707,10 @@ inline void SetOperationsFromJsonAndRun()
 {
 	if (ParseConfigurationObjectAndInitialize())
 	{
-		MakeBedlam();
+		if(g_delay > 0)
+        {
+            sleep(g_delay);
+        }
+        MakeBedlam();
 	}
 }

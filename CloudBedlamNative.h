@@ -186,7 +186,7 @@ NetworkEmulationProfile Netem;
 bool g_bCPUConfig, g_bMemConfig, g_bNetemConfig, g_bRepeating = false;
 string g_loginfoNetem, g_loginfoCpu, g_logInfoMem = "";
 //container used for sequential orchestration of bedlam operations...
-vector<pair<void(*)(),int>> seqrunVec;
+vector<pair<void(*)(),int>> g_seqrunVec;
 //Logger...
 std::shared_ptr<spdlog::logger> g_logger;
 
@@ -662,7 +662,7 @@ inline bool ParseConfigurationObjectAndInitialize()
                     if (isRunOrder)
                     {
                         int r = g_json["ChaosConfiguration"]["CpuPressure"]["RunOrder"].int_value();
-                        seqrunVec.emplace_back(RunCpuPressure, r);
+                        g_seqrunVec.emplace_back(RunCpuPressure, r);
                     }
                 }
                 //Mem
@@ -672,7 +672,7 @@ inline bool ParseConfigurationObjectAndInitialize()
                     if (isRunOrder)
                     {
                         int r = g_json["ChaosConfiguration"]["MemoryPressure"]["RunOrder"].int_value();
-                        seqrunVec.emplace_back(RunMemoryPressure, r);
+                        g_seqrunVec.emplace_back(RunMemoryPressure, r);
                     }
                 }
                 //Netem
@@ -682,7 +682,7 @@ inline bool ParseConfigurationObjectAndInitialize()
                     if (isRunOrder)
                     {
                         int r = g_json["ChaosConfiguration"]["NetworkEmulation"]["RunOrder"].int_value();
-                        seqrunVec.emplace_back(RunNetworkEmulation, r);
+                        g_seqrunVec.emplace_back(RunNetworkEmulation, r);
                     }
                 }
             }
@@ -742,9 +742,9 @@ inline void MakeBedlam()
 		case Sequential: 
 		{
 			// sort on RunOrder (the int in vector<pair<void(*)(),int>>...)
-			sort(seqrunVec.begin(), seqrunVec.end(), sort_pair_asc);
+			sort(g_seqrunVec.begin(), g_seqrunVec.end(), sort_pair_asc);
 			// run each function in the sorted pair...
-			for (auto it = seqrunVec.begin(); it != seqrunVec.end(); ++it)
+			for (auto it = g_seqrunVec.begin(); it != g_seqrunVec.end(); ++it)
 			{
 				(*it).first();
 			}

@@ -270,14 +270,14 @@ inline bool RunOperation(string command)
     }
     else if(pid == 0)
     {
-        /* this is the child */
+        /* child */
         if(canCaptureop)
         {
             while ((dup2(filedes[1], STDOUT_FILENO) == -1) && (errno == EINTR)) {}
             close(filedes[1]);
             close(filedes[0]);
         }
-        //printf("the child's pid is: %d\n", getpid());
+        //printf("child's pid is: %d\n", getpid());
         char* cc = nullptr;
         char* cc1 = nullptr;
         //e.g., netem bandwidth, loss, corruption...
@@ -302,6 +302,7 @@ inline bool RunOperation(string command)
     }
     else
     {
+        /* parent */
         if(canCaptureop)
         {
             close(filedes[1]);
@@ -327,7 +328,7 @@ inline bool RunOperation(string command)
                 }
                 else
                 {
-                    int size = sizeof(buffer);
+                    unsigned long size = sizeof(buffer);
                     size = std::remove(buffer, buffer + size, '\n') - buffer;
                     g_logger->info(buffer);
                 }
@@ -340,7 +341,6 @@ inline bool RunOperation(string command)
             printf ("parent: error\n");
             return false;
         }
-        //printf("continuing parent execution\n");
         return true;
     }
 }

@@ -734,7 +734,7 @@ inline void MakeBedlam()
 		{
 			// sort on RunOrder (the int in vector<pair<void(*)(),int>>...)
 			sort(g_seqrunVec.begin(), g_seqrunVec.end(), sort_pair_asc);
-			// run each function in the sorted pair...
+			// run each function in the asc sorted vector...
 			for (auto it = g_seqrunVec.begin(); it != g_seqrunVec.end(); ++it)
 			{
 				(*it).first();

@@ -702,7 +702,6 @@ inline void MakeBedlam()
 {
 	switch(g_orchestration)
 	{
-        //TODO: This impl doesn't work for linux...
         case Concurrent:
 		{
 			//Run all functions concurrently, blocking the main thread (which we want...)...
@@ -719,10 +718,11 @@ inline void MakeBedlam()
 		}
 		case Random:
 		{
-			// Must set seed here...
+			// Must set seed here.
 			srand(time(nullptr));
-            // built-in random generator:
+            // built-in random generator
             std::random_shuffle(g_seqrunVec.begin(), g_seqrunVec.end());
+            //run each function in the randomly shuffled vector...
             for (auto it = g_seqrunVec.begin(); it != g_seqrunVec.end(); ++it)
             {
                 (*it).first();

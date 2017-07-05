@@ -334,13 +334,9 @@ inline bool RunOperation(string command)
             }
             close(filedes[0]);
         }
-        //wait for proc to end...
-        if (-1 == (ret = wait(&status)))
-        {
-            printf ("parent: error\n");
-            return false;
-        }
-        return true;
+        //wait for child to exit...
+        return waitpid(pid, nullptr, WNOHANG) != 0;
+        //Failure...
     }
 }
 

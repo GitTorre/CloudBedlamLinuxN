@@ -60,6 +60,7 @@ typedef enum
 } NetworkType;
 
 using namespace std;
+namespace spd = spdlog;
 
 struct Endpoint
 {
@@ -557,14 +558,14 @@ inline void RunNetworkEmulation()
 
     if (RunOperation(Netem.CmdArgs))
     {
-        g_logger->info("Netem run operation successful.");
+        g_logger->info("Network emulation operation succeeded.");
     }
     else
     {
-        g_logger->error("Netem run operation failed.");
+        g_logger->error("Network emulation operation failed.");
         return;
     }
-    g_logger->info("Stopping network emulation");
+    g_logger->info("Stopping network emulation.");
 }
 
 inline void InitGlobals()
@@ -576,7 +577,7 @@ inline void InitGlobals()
         mkdir("bedlamlogs", 0700);
     }
 
-    g_logger = spdlog::basic_logger_mt("basic_logger", "bedlamlogs/bedlam.log");
+    g_logger = spd::basic_logger_mt("basic_logger", "bedlamlogs/bedlam.log");
     g_logger->info("globals initialized and set...");
 
 }

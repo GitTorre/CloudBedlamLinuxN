@@ -1,10 +1,5 @@
-
-#ifndef UNICODE
-#define UNICODE
-#endif
 #include "CloudBedlamNative.h"
 
-namespace spd = spdlog;
 int main()
 {
 	InitGlobals();

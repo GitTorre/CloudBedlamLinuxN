@@ -185,11 +185,10 @@ NetworkEmulationProfile Netem;
 //Operational settings...
 bool g_bCPUConfig, g_bMemConfig, g_bNetemConfig, g_bRepeating = false;
 string g_loginfoNetem, g_loginfoCpu, g_logInfoMem = "";
-//container used for sequential orchestration of bedlam operations...
+//container used for sequential/random orchestration of bedlam operations...
 vector<pair<void(*)(),int>> g_seqrunVec;
 //Logger...
 std::shared_ptr<spdlog::logger> g_logger;
-
 
 enum Orchestration
 {
@@ -296,7 +295,7 @@ inline bool RunOperation(string command)
             return true;
         }
 
-        printf("execl failed\n");
+        g_logger->error("execl failed!" + c[0][0]);
         return false;
     }
     else
@@ -335,8 +334,7 @@ inline bool RunOperation(string command)
             close(filedes[0]);
         }
         //wait for child to exit...
-        return waitpid(pid, nullptr, WNOHANG) != 0;
-        //Failure...
+        return waitpid(pid, &status, WNOHANG) != 0;
     }
 }
 
@@ -648,8 +646,8 @@ inline bool ParseConfigurationObjectAndInitialize()
             {
                 g_bNetemConfig = true;
             }
-            //If Sequential orc, then set runorders...
-            if (g_orchestration == Orchestration::Sequential)
+            //If Sequential OR Random orc, then set g_seqrunVec...
+            if (g_orchestration == Orchestration::Sequential || g_orchestration == Orchestration::Random)
             {
                 if (g_bCPUConfig)
                 {
@@ -720,19 +718,15 @@ inline void MakeBedlam()
 		}
 		case Random:
 		{
-			// Run each function based on random number between 0 and 3
 			// Must set seed here...
 			srand(time(nullptr));
-			for (auto i = 0; i < 3; ++i) 
-			{
-				switch (rand() % 3)
-				{
-					case 0: RunCpuPressure(); break;
-					case 1: RunMemoryPressure(); break;
-					case 2: RunNetworkEmulation(); break;
-				default: ;
-				}
-			}
+            // built-in random generator:
+            std::random_shuffle(g_seqrunVec.begin(), g_seqrunVec.end());
+            for (auto it = g_seqrunVec.begin(); it != g_seqrunVec.end(); ++it)
+            {
+                (*it).first();
+            }
+
 			break;
 		}
 		case Sequential: 

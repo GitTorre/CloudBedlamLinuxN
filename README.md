@@ -48,7 +48,7 @@ For example, the JSON configuration below sequentially runs (according to specif
       "EmulationType": "Bandwidth",
       "BandwidthDownstreamSpeed" : 56,
       "RunOrder": 0,
-      "Endpoint": [
+      "Endpoints": [
         {
           "Port": 443,
           "Hostname": "www.bing.com",

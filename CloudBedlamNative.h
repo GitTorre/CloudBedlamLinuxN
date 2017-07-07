@@ -430,12 +430,12 @@ inline void RunNetworkEmulation()
                 return;
             }
             //Parse endpoints, build ip string...
-            bool isArr = g_json["ChaosConfiguration"]["NetworkEmulation"]["TargetEndpoints"]["Endpoint"].is_array();
+            bool isArr = g_json["ChaosConfiguration"]["NetworkEmulation"]["Endpoints"].is_array();
             string hostnames = "{ ";
             string ips;
             if (isArr)
             {
-                auto arrEndpoints = g_json["ChaosConfiguration"]["NetworkEmulation"]["TargetEndpoints"]["Endpoint"].array_items();
+                auto arrEndpoints = g_json["ChaosConfiguration"]["NetworkEmulation"]["Endpoints"].array_items();
 
                 for (size_t i = 0; i < arrEndpoints.size(); i++)
                 {

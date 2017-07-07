@@ -48,25 +48,23 @@ For example, the JSON configuration below sequentially runs (according to specif
       "EmulationType": "Bandwidth",
       "BandwidthDownstreamSpeed" : 56,
       "RunOrder": 0,
-      "TargetEndpoints": {
-        "Endpoint": [
-          {
-            "Port": 443,
-            "Hostname": "www.bing.com",
-            "Protocol": "ALL"
-          },
-          {
-            "Port": 80,
-            "Hostname": "www.msn.com",
-            "Protocol": "ALL"
-          },
-          {
-            "Port": 443,
-            "Hostname": "www.google.com",
-            "Protocol": "ALL"
-          }
-        ]
-      }
+      "Endpoint": [
+        {
+          "Port": 443,
+          "Hostname": "www.bing.com",
+          "Protocol": "ALL"
+        },
+        {
+          "Port": 80,
+          "Hostname": "www.msn.com",
+          "Protocol": "ALL"
+        },
+        {
+          "Port": 443,
+          "Hostname": "www.google.com",
+          "Protocol": "ALL"
+        }
+      ]
     }
   }
 }

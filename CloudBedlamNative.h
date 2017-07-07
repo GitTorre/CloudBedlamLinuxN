@@ -26,14 +26,6 @@
 #include <memory>
 #include <sys/stat.h>
 
-#define	ALL_PROTOCOL 0
-#define	ICMP 1
-#define	TCP 6
-#define	UDP 17
-#define	ESP 50		//! Flag for Encapsulating Security Payload Header, RFC 2406
-#define	AH 51		//! Flag for authentication header, RFC 2402
-#define	ICMPv6 58
-
 using namespace std;
 using namespace json11;
 using namespace std;
@@ -41,9 +33,20 @@ namespace spd = spdlog;
 
 typedef enum
 {
+    ALL_PROTOCOL,
+    ICMP,
+    TCP,
+    UDP,
+    ESP,
+    AH,
+    ICMPv6
+}Protocol;
+
+typedef enum
+{
+    ALL_NETWORK,
     Ipv4,
-    Ipv6,
-    ALL_NETWORK
+    Ipv6
 }NetworkType;
 
 typedef enum
@@ -91,8 +94,8 @@ map<string, Orchestration> MapStringToOrchestration =
                 { "Random", Random },
                 { "Sequential", Sequential }
         };
-
-map<string, int> MapStringToProtocol =
+//TODO: Add support (bash) to specifying protocol...
+map<string, Protocol> MapStringToProtocol =
         {
                 { "ALL", ALL_PROTOCOL },
                 { "AH", AH },
@@ -102,7 +105,7 @@ map<string, int> MapStringToProtocol =
                 { "TCP",  TCP },
                 { "UDP",  UDP }
         };
-
+//TODO: Add support (bash) to specifying network type...
 map<string, NetworkType> MapStringToNetworkType =
         {
                 { "ALL", ALL_NETWORK },

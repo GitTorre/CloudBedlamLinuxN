@@ -34,33 +34,37 @@
 #define	AH 51		//! Flag for authentication header, RFC 2402
 #define	ICMPv6 58
 
-#define SPDLOG_TRACE_ON
-#define SPDLOG_DEBUG_ON
-
 using namespace std;
 using namespace json11;
-//TODO Add an mt logger...
-/// <summary>
-/// Enumeration of connection type to filter.
-/// </summary>
-typedef enum
-{
-    /// <summary>
-    /// Filter IPv4 connections.
-    /// </summary>
-            Ipv4 = 4,
-    /// <summary>
-    /// Filter IPv6 connections.
-    /// </summary>
-            Ipv6 = 6,
-    /// <summary>
-    /// Filter all network connections.
-    /// </summary>
-            ALL_NETWORK = 0
-} NetworkType;
-
 using namespace std;
 namespace spd = spdlog;
+
+typedef enum
+{
+    Ipv4,
+    Ipv6,
+    ALL_NETWORK
+}NetworkType;
+
+typedef enum
+{
+    Concurrent,
+    Random,
+    Sequential
+}Orchestration;
+
+//Globals...
+Json g_json = nullptr;
+int g_delay = 0;
+int g_repeat = 0;
+Orchestration g_orchestration;
+//Logger...
+std::shared_ptr<spd::logger> g_logger;
+//Operational settings...
+bool g_bCPUConfig, g_bMemConfig, g_bNetemConfig, g_bRepeating = false;
+string g_loginfoNetem, g_loginfoCpu, g_logInfoMem = "";
+//container used for sequential/random orchestration of bedlam operations...
+vector<pair<void(*)(),int>> g_seqrunVec;
 
 struct Endpoint
 {
@@ -80,6 +84,32 @@ typedef enum
     Reorder
 } EmulationType;
 
+// string->object enum/objects mappers...
+map<string, Orchestration> MapStringToOrchestration =
+        {
+                { "Concurrent", Concurrent },
+                { "Random", Random },
+                { "Sequential", Sequential }
+        };
+
+map<string, int> MapStringToProtocol =
+        {
+                { "ALL", ALL_PROTOCOL },
+                { "AH", AH },
+                { "ESP",  ESP },
+                { "ICMP", ICMP },
+                { "ICMPv6", ICMPv6 },
+                { "TCP",  TCP },
+                { "UDP",  UDP }
+        };
+
+map<string, NetworkType> MapStringToNetworkType =
+        {
+                { "ALL", ALL_NETWORK },
+                { "IPv4", Ipv4 },
+                { "IPv6", Ipv6 },
+        };
+
 static map<string, EmulationType> EmStringValues;
 map<string, EmulationType> MapStringToEmulationType =
         {
@@ -91,6 +121,22 @@ map<string, EmulationType> MapStringToEmulationType =
             { "Reorder", Reorder }
         };
 
+// Fault objects...
+// These structs just hold data passed to bash scripts (CmdArgs)...
+struct CpuPressure
+{
+    int PressureLevel = 0;
+    int Duration = 0;
+    int RunOrder = 0;
+    string CmdArgs = "Bash/stress-cpu.sh ";
+};
+struct MemoryPressure
+{
+    int PressureLevel = 0;
+    int Duration = 0;
+    int RunOrder = 0;
+    string CmdArgs = "Bash/stress-mem.sh ";
+};
 struct NetworkEmulationProfile
 {
     vector<Endpoint> Endpoints;
@@ -99,6 +145,8 @@ struct NetworkEmulationProfile
     EmulationType Type;
     string CmdArgs = "";
 };
+
+/**Impls...**/
 
 inline string hostname2ips(const string &hostname)
 {
@@ -131,12 +179,10 @@ inline string hostname2ips(const string &hostname)
 
             if(inet_ntop(AF_INET, &((struct sockaddr_in *)ptr->ai_addr)->sin_addr, address, sizeof(address)) == nullptr)
             {
+                g_logger->error("hostname2ip: Unable to resolve IPv4 address.");
                 return "";
             }
             string s(address);
-            wstring loginfo = L"\nIPv4 - ";
-            wstring ip(s.begin(), s.end());
-            loginfo += ip;
             ips += s + ",";
         }
         else if(ptr->ai_family == AF_INET6)
@@ -144,86 +190,21 @@ inline string hostname2ips(const string &hostname)
             char address[INET6_ADDRSTRLEN];
             if(inet_ntop(AF_INET6, &((struct sockaddr_in *)ptr->ai_addr)->sin_addr, address, sizeof(address)) == nullptr)
             {
+                g_logger->error("hostname2ip: Unable to resolve IPv6 address.");
                 return "";
             }
             string s(address);
-            wstring loginfo = L"\nIPv6 - ";
-            wstring ip(s.begin(), s.end());
-            loginfo += ip;
             ips += s + ",";
         }
     }
-    freeaddrinfo(addrinfo);           /* No longer needed */
+    freeaddrinfo(addrinfo);
     return ips;
 }
 
-// Fault objects...
-// These structs just hold data passed to external console processes (ExecPath)...
-struct CpuPressure
-{
-	int PressureLevel = 0;
-	int Duration = 0;
-	int RunOrder = 0;
-	string CmdArgs = "Bash/stress-cpu.sh ";
-};
-struct MemoryPressure
-{
-	int PressureLevel = 0;
-	int Duration = 0;
-	int RunOrder = 0;
-	string CmdArgs = "Bash/stress-mem.sh ";
-};
-
-//Globals...
-
-Json g_json = nullptr;
-int g_delay = 0;
-int g_repeat = 0;
-//Bedlam operations...
+//Bedlam operation instances...
 CpuPressure Cpu;
 MemoryPressure Mem;
 NetworkEmulationProfile Netem;
-//Operational settings...
-bool g_bCPUConfig, g_bMemConfig, g_bNetemConfig, g_bRepeating = false;
-string g_loginfoNetem, g_loginfoCpu, g_logInfoMem = "";
-//container used for sequential/random orchestration of bedlam operations...
-vector<pair<void(*)(),int>> g_seqrunVec;
-//Logger...
-std::shared_ptr<spdlog::logger> g_logger;
-
-enum Orchestration
-{
-	Concurrent,
-	Random,
-	Sequential
-};
-Orchestration g_orchestration;
-
-// string->object enum/objects mappers...
-map<string, Orchestration> MapStringToOrchestration =
-{
-	{ "Concurrent", Concurrent },
-	{ "Random", Random },
-	{ "Sequential", Sequential }
-};
-
-map<string, int> MapStringToProtocol =
-{
-	{ "ALL", ALL_PROTOCOL },
-    { "AH", AH },
-	{ "ESP",  ESP },
-	{ "ICMP", ICMP },
-	{ "ICMPv6", ICMPv6 },
-	{ "TCP",  TCP },
-	{ "UDP",  UDP }
-};
-
-map<string, NetworkType> MapStringToNetworkType =
-{
-	{ "ALL", ALL_NETWORK },
-	{ "IPv4", Ipv4 },
-	{ "IPv6", Ipv6 },
-};
 
 inline vector<string> Split(const string &s, char delim)
 {
@@ -455,14 +436,22 @@ inline void RunNetworkEmulation()
 
                 for (size_t i = 0; i < arrEndpoints.size(); i++)
                 {
-                    string hostname = arrEndpoints[i]["Hostname"].string_value();
-                    //For logging... TODO...
-                    //wstring wshostname = wstring(hostname.begin(), hostname.end());
-                    hostnames += hostname + " ";
+                    if(arrEndpoints[i]["Hostname"].is_string())
+                    {
+                        string hostname = arrEndpoints[i]["Hostname"].string_value();
+                        if (hostname != "")
+                        {
+                            //For logging...
+                            hostnames += hostname + " ";
 
-                    //Get ips from endpoint hostname, build the ips string to pass to bash script...
-                    ips += hostname2ips(hostname);
-
+                            //Get ips from endpoint hostname, build the ips string to pass to bash script...
+                            string ip = hostname2ips(hostname);
+                            if (ip != "")
+                            {
+                                ips += ip;
+                            }
+                        }
+                    }
                 }
             }
             //remove trailing character (in our case, a comma will always be the last char...)

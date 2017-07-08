@@ -74,15 +74,13 @@ For example, the JSON configuration below sequentially runs (according to specif
 clone...
 whomever:~/work/src$ git clone https://github.com/gittorre/CBLinuxN.git
 whomever:~/work/src$ cd CBLinuxN
-build...(really fast and easy with g++... you can also use cmake...)
+build...(really fast and easy with g++... you can also use cmake, if that is what you need to do...)
 g++:
 whomever:~/work/src/CBLinuxN$ g++ -std=c++11 CloudBedlamNative.cpp json11.cpp -lpthread -o CBLinuxN
-cmake:
-whomever:~/work/src/CBLinuxN$ cmake --build /home/ct/work/src/CBLinuxN/cmake-build-debug --target CBLinuxN -- -j 4
 run... (this has run as sudo...)
 whomever:~/work/src/CBLinuxN$ sudo ./CBLinuxN
 </code></pre>
-When running CloudBedlam, a bedlamlogs folder will be created in the folder where the CloudBedlam binary is running. Output file will contain INFO and ERROR data (ERROR info will include error messages and stack traces).
+When running CloudBedlam, a bedlamlogs folder will be created in the folder where the CloudBedlam binary is running. Output file will contain INFO and ERROR data (ERROR info will include error messages...).
 
 ## Contributing
 
@@ -90,7 +88,7 @@ Of course, please help make this better 😊 – and add whatever you need aroun
 
 Have fun and hopefully this proves useful to you in your service resiliency experimentation. It should be clear that this is a development tool at this stage and not a DevOps workflow orchestrator. You should run this in individual VMs to vet the quality of your code in terms of resiliency and fault tolerance. 
 
-## Feedback
+# Feedback/Issues
 
 Any and all feedback very welcome. Let us know if you use this and if it helps uncover resiliency/fault tolerance issues in your service implementation. Please <a href="https://github.com/GitTorre/CBLinuxN/issues">submit bugs/requests/feedback</a>. Thank you! This will continue to evolve and your contributions, in whatever form (words or code), will be greatly appreciated!
 

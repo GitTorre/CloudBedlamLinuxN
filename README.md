@@ -30,9 +30,8 @@ For example, the JSON configuration below sequentially runs (according to specif
 {
   "ChaosConfiguration": {
     "Orchestration": "Sequential",
-    "Duration": 60,
-    "RunDelay": 0,
-    "Repeat": 1,
+    "RunDelay": 5,
+    "Repeat": 2,
     "CpuPressure": {
       "Duration": 15,
       "PressureLevel": 90,
@@ -47,6 +46,7 @@ For example, the JSON configuration below sequentially runs (according to specif
       "Duration": 15,
       "EmulationType": "Bandwidth",
       "BandwidthDownstreamSpeed" : 56,
+      "BandwidthUpstreamSpeed" : 33,
       "RunOrder": 0,
       "Endpoints": [
         {
@@ -69,6 +69,8 @@ For example, the JSON configuration below sequentially runs (according to specif
   }
 }
 </pre></code>
+All orchestration, repeat, and delay settings are implemented. You can run all the bedlam ops at once (and create true bedlam...) using Concurrent as the Orchestration setting. Sequential runs through the operations according to the RunOrder you provide for each object in the json config file. Random runs the operations in random order, sequentially. You can delay the start of bedlam by setting Delay to some number of seconds. You can repeat the orchestration of bedlam by setting Repeat to some integer value... 
+
 ## Building and Running
 <pre><code>
 clone...
@@ -80,7 +82,7 @@ whomever:~/work/src/CBLinuxN$ g++ -std=c++11 CloudBedlamNative.cpp json11.cpp -l
 run... (this has run as sudo...)
 whomever:~/work/src/CBLinuxN$ sudo ./CBLinuxN
 </code></pre>
-When running CloudBedlam, a bedlamlogs folder will be created in the folder where the CloudBedlam binary is running. Output file will contain INFO and ERROR data (ERROR info will include error messages...).
+When running CloudBedlam, a bedlamlogs folder will be created in the folder where the CloudBedlam binary is running. Output file will contain info and error data...
 
 ## Contributing
 

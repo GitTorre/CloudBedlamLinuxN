@@ -58,7 +58,7 @@ typedef enum
 
 //Globals...
 Json g_json = nullptr;
-int g_delay = 0;
+unsigned int g_delay = 0;
 int g_repeat = 0;
 Orchestration g_orchestration;
 //Logger...
@@ -113,7 +113,6 @@ map<string, NetworkType> MapStringToNetworkType =
                 { "IPv6", Ipv6 },
         };
 
-static map<string, EmulationType> EmStringValues;
 map<string, EmulationType> MapStringToEmulationType =
         {
             { "Bandwidth", Bandwidth },
@@ -237,7 +236,7 @@ inline bool RunOperation(string command)
 
     pid_t pid;
 
-    int ret, status;
+    int status;
     auto s = Split(command, ' ');
     char* c[] = {
             &s[0][0u],
@@ -617,7 +616,7 @@ inline bool ParseConfigurationObjectAndInitialize()
             auto isDelay = g_json["ChaosConfiguration"]["RunDelay"].is_number();
             if (isDelay)
             {
-                g_delay = g_json["ChaosConfiguration"]["RunDelay"].int_value() * 1000;
+                g_delay = (unsigned int)g_json["ChaosConfiguration"]["RunDelay"].int_value();
                 g_logger->info("Delay: " + to_string(g_delay) + "ms");
                 sleep(g_delay);
             }
@@ -740,10 +739,12 @@ inline void SetOperationsFromJsonAndRun()
 {
 	if (ParseConfigurationObjectAndInitialize())
 	{
-		if(g_delay > 0)
+        //Delay run?
+        if (g_delay > 0)
         {
             sleep(g_delay);
         }
+        //Bedlam time...
         MakeBedlam();
 	}
 }

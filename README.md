@@ -71,6 +71,8 @@ For example, the JSON configuration below sequentially runs (according to specif
 </pre></code>
 All orchestration, repeat, and delay settings are implemented. You can run all the bedlam ops at once (and create true bedlam...) using Concurrent as the Orchestration setting. Sequential runs through the operations according to the RunOrder you provide for each object in the json config file. Random runs the operations in random order, sequentially. You can delay the start of bedlam by setting Delay to some number of seconds. You can repeat the orchestration of bedlam by setting Repeat to some integer value... 
 
+There is more work to do vis a vis network emulation: I need to add support for specifying port ranges, protocols, network layer. This is in flight. However, in it's current form, CloudBedlam is highly useful for enabling chaotic experimentation inside Linux VMs. Please make pull requests if you find bugs or have great ideas for improvement. Thank you!
+
 ## Building and Running
 <pre><code>
 clone...

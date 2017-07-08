@@ -617,7 +617,7 @@ inline bool ParseConfigurationObjectAndInitialize()
             if (isDelay)
             {
                 g_delay = (unsigned int)g_json["ChaosConfiguration"]["RunDelay"].int_value();
-                g_logger->info("Delay: " + to_string(g_delay) + "ms");
+                g_logger->info("Delay: " + to_string(g_delay) + "s");
                 sleep(g_delay);
             }
             //What's in the config?...

@@ -48,25 +48,23 @@ For example, the JSON configuration below sequentially runs (according to specif
       "EmulationType": "Bandwidth",
       "BandwidthDownstreamSpeed" : 56,
       "RunOrder": 0,
-      "TargetEndpoints": {
-        "Endpoint": [
-          {
-            "Port": 443,
-            "Hostname": "www.bing.com",
-            "Protocol": "ALL"
-          },
-          {
-            "Port": 80,
-            "Hostname": "www.msn.com",
-            "Protocol": "ALL"
-          },
-          {
-            "Port": 443,
-            "Hostname": "www.google.com",
-            "Protocol": "ALL"
-          }
-        ]
-      }
+      "Endpoints": [
+        {
+          "Port": 443,
+          "Hostname": "www.bing.com",
+          "Protocol": "ALL"
+        },
+        {
+          "Port": 80,
+          "Hostname": "www.msn.com",
+          "Protocol": "ALL"
+        },
+        {
+          "Port": 443,
+          "Hostname": "www.google.com",
+          "Protocol": "ALL"
+        }
+      ]
     }
   }
 }
@@ -94,7 +92,7 @@ Have fun and hopefully this proves useful to you in your service resiliency expe
 
 ## Feedback
 
-Any and all feedback very welcome. Let us know if you use this and if it helps uncover resiliency/fault tolerance issues in your service implementation. You can send mail to ctorre@microsoft.com and/or <a href="https://github.com/GitTorre/CBLinuxN/issues">create Issues here</a>. Thank you! This will continue to evolve and your contributions, in whatever form (words or code), will be greatly appreciated!
+Any and all feedback very welcome. Let us know if you use this and if it helps uncover resiliency/fault tolerance issues in your service implementation. Please <a href="https://github.com/GitTorre/CBLinuxN/issues">submit bugs/requests/feedback here</a>. Thank you! This will continue to evolve and your contributions, in whatever form (words or code), will be greatly appreciated!
 
 
 Make bedlam, not war!

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <errno.h>
+#include <cerrno>
 #include <fstream>
 #include <vector>
 #include "json11.hpp"
@@ -9,16 +9,15 @@
 #include <algorithm>
 #include <map>
 #include <sstream>
-#include <stdio.h>
+#include <cstdio>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <string>
 #include <sys/wait.h>
 #include <zconf.h>
-#include <signal.h>
+#include <csignal>
 #include <cstring>
-#include <stdlib.h>
-#include <errno.h>
+#include <cstdlib>
 #include <unistd.h>
 #include <sys/types.h>
 #include "spdlog/spdlog.h"
@@ -221,7 +220,7 @@ inline vector<string> Split(const string &s, char delim)
     return elems;
 }
 
-inline bool RunOperation(string command)
+inline bool RunOperation(const string& command)
 {
     //capture stdout from child...
 
@@ -245,12 +244,14 @@ inline bool RunOperation(string command)
             &s[3][0u],
             &s[4][0u]
     };
+
     if((pid = fork()) < 0)
     {
         g_logger->error("an error occurred while forking!");
         return false;
     }
-    else if(pid == 0)
+
+    if(pid == 0)
     {
         /* child */
         if(canCaptureop)
@@ -282,44 +283,41 @@ inline bool RunOperation(string command)
         g_logger->error("execl failed!" + c[0][0]);
         return false;
     }
-    else
+
+    /* parent */
+    if(canCaptureop)
     {
-        /* parent */
-        if(canCaptureop)
+        close(filedes[1]);
+        char buffer[4096] = { '\0' };
+        while (1)
         {
-            close(filedes[1]);
-            char buffer[4096] = { '\0' };
-            while (1)
+            ssize_t count = read(filedes[0], buffer, sizeof(buffer));
+            if (count == -1)
             {
-                ssize_t count = read(filedes[0], buffer, sizeof(buffer));
-                if (count == -1)
+                if (errno == EINTR)
                 {
-                    if (errno == EINTR)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        perror("read");
-                        //Log...
-                    }
+                    continue;
                 }
-                else if (count == 0)
-                {
-                    break;
-                }
-                else
-                {
-                    unsigned long size = sizeof(buffer);
-                    size = std::remove(buffer, buffer + size, '\n') - buffer;
-                    g_logger->info(buffer);
-                }
+
+                perror("read");
+                //Log...
+
             }
-            close(filedes[0]);
+            else if (count == 0)
+            {
+                break;
+            }
+            else
+            {
+                unsigned long size = sizeof(buffer);
+                size = std::remove(buffer, buffer + size, '\n') - buffer;
+                g_logger->info(buffer);
+            }
         }
-        //wait for child to exit...
-        return waitpid(pid, &status, WNOHANG) != 0;
+        close(filedes[0]);
     }
+    //wait for child to exit...
+    return waitpid(pid, &status, WNOHANG) != 0;
 }
 
 //CPU
@@ -441,14 +439,14 @@ inline void RunNetworkEmulation()
                     if(arrEndpoints[i]["Hostname"].is_string())
                     {
                         string hostname = arrEndpoints[i]["Hostname"].string_value();
-                        if (hostname != "")
+                        if (!hostname.empty())
                         {
                             //For logging...
                             hostnames += hostname + " ";
 
                             //Get ips from endpoint hostname, build the ips string to pass to bash script...
                             string ip = hostname2ips(hostname);
-                            if (ip != "")
+                            if (!ip.empty())
                             {
                                 ips += ip;
                             }
@@ -677,11 +675,10 @@ inline bool ParseConfigurationObjectAndInitialize()
         g_logger->error("Invalid Json (Not a ChaosConfiguration...). Make sure you supplied the correct format...");
         return false;
 	}
-    else
-    {
-        g_bRepeating = true;
-        return true;
-    }
+    //No need to re-parse JSON if repeat > 0... All of the data is already in memory...
+    g_bRepeating = true;
+    return true;
+
 }
 
 inline bool sort_pair_asc(const pair<void(*)(),int>& vec1, const pair<void(*)(), int>& vec2) 
@@ -697,9 +694,9 @@ inline void MakeBedlam()
 		{
 			//Run all functions concurrently, blocking the main thread (which we want...)...
 			vector<thread> threads;
-			threads.push_back(thread(RunCpuPressure));
-			threads.push_back(thread(RunMemoryPressure));
-			threads.push_back(thread(RunNetworkEmulation));
+			threads.emplace_back(RunCpuPressure);
+			threads.emplace_back(RunMemoryPressure);
+			threads.emplace_back(RunNetworkEmulation);
 			//Join... (wait for the processes/code running in the threads to exit/complete)
 			for (auto& thread : threads) 
 			{
@@ -710,13 +707,14 @@ inline void MakeBedlam()
 		case Random:
 		{
 			// Must set seed here.
-			srand(time(nullptr));
-            // built-in random generator
-            std::random_shuffle(g_seqrunVec.begin(), g_seqrunVec.end());
+            // obtain a time-based seed:
+            unsigned seed = static_cast<unsigned int>(std::chrono::system_clock::now().time_since_epoch().count());
+            // built-in shuffle
+            std::shuffle(g_seqrunVec.begin(), g_seqrunVec.end(), std::default_random_engine(seed));
             //run each function in the randomly shuffled vector...
-            for (auto it = g_seqrunVec.begin(); it != g_seqrunVec.end(); ++it)
+            for (auto &it : g_seqrunVec)
             {
-                (*it).first();
+                it.first();
             }
 
 			break;
@@ -726,9 +724,9 @@ inline void MakeBedlam()
 			// sort on RunOrder (the int in vector<pair<void(*)(),int>>...)
 			sort(g_seqrunVec.begin(), g_seqrunVec.end(), sort_pair_asc);
 			// run each function in the asc sorted vector...
-			for (auto it = g_seqrunVec.begin(); it != g_seqrunVec.end(); ++it)
-			{
-				(*it).first();
+			for (auto &it : g_seqrunVec)
+            {
+                it.first();
 			}
 			break;
 		}

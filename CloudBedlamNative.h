@@ -25,7 +25,6 @@
 #include <memory>
 #include <sys/stat.h>
 
-using namespace std;
 using namespace json11;
 using namespace std;
 namespace spd = spdlog;

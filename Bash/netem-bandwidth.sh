@@ -1,5 +1,7 @@
 #!/bin/bash
 # get the currently up and running network device...
+# try and install iproute2, suppress output...
+apt install iproute  2> /dev/null > /dev/null
 interface=$(ip -o link show | awk '{print $2,$9}' | grep UP | awk '{str = $0; sub(/: UP/,"",str); print str}')
 # vars
 rate="$2"

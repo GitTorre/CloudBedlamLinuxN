@@ -21,7 +21,7 @@ Obviously, you need to be <i><b>allowed</b></i> (so, by policy on your team...) 
 
 Currently, there is no big red button (Stop) implemented, but it will be coming as this evolves into a system that can be remote controlled over SSH by a mutually trusted service (where having a big red button really matters given in that case you'd probably have multiple VMs running CB...)... In this impl, you control lifetimes of chaotic operations via configuration settings (duration) for each operation you want to use to induce controlled, directed, deterministic chaos as part of your chaos experimentation.
 
-Finally, this is the version of CloudBedlam that will be evolving first, not the Mono/.NET Core versions. Changes made here (new features and capabilities...) will be added to those projects at a later date, at my (or, hopefully, somebody else's) discretion --CT
+Finally, this is the version of CloudBedlam that will be evolving first, not the Mono/.NET Core versions. Changes made here (new features and capabilities...) will be added to those projects at a later date, at my (or, hopefully, somebody else's) discretion.
 
 
 ### Easy to use 
@@ -122,8 +122,3 @@ Have fun and hopefully this proves useful to you in your service resiliency expe
 # Feedback/Issues
 
 Any and all feedback very welcome. Let us know if you use this and if it helps uncover resiliency/fault tolerance issues in your service implementation. Please <a href="https://github.com/GitTorre/CBLinuxN/issues">submit bugs/requests/feedback</a>. Thank you! This will continue to evolve and your contributions, in whatever form (words or code), will be greatly appreciated!
-
-
-Make bedlam, not war!
-
---CloudBedlam Team

@@ -1,7 +1,7 @@
 # CBLinuxN: CloudBedlam for Linux -- C++ Implementation
 # What? Why? How?
 
-"Chaos Engineering is the discipline of experimenting on a distributed system in order to build confidence in the system’s capability to withstand turbulent conditions in production." 
+### "Chaos Engineering is the discipline of experimenting on a distributed system in order to build confidence in the system’s capability to withstand turbulent conditions in production." 
 
 -From Netflix's Principles of Chaos Engineering Manifesto => http://principlesofchaos.org 
 

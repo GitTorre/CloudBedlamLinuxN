@@ -21,7 +21,9 @@ This is meant to run chaos experiments <i>inside</i> VMs as a way to experiment 
 
 ### Obviously, you need to be <i><b>allowed</b></i> (so, by policy on your team...) to run binaries on the VMs that host your cloud services. Further, due to network emulation via tc (netem) running inside the kernel, you have to run CB as a sudo user. 
 
-### Currently, there is no big red button (Stop) implemented, but it will be coming as this evolves into a system that can be remote controlled over SSH by a mutually trusted service.... --CT
+### Currently, there is no big red button (Stop) implemented, but it will be coming as this evolves into a system that can be remote controlled over SSH by a mutually trusted service.... 
+
+### Finally, this is the version of CloudBedlam that will be evolving first, not the Mono/.NET Core versions. Changes made here (new features and capabilities...) will be added to those projects at a later date, at my (or, hopefully, your) discretion --CT
 
 Step 0.
 
@@ -111,7 +113,7 @@ whomever:~/work/src/CBLinuxN$ sudo ./CBLinuxN
 </code></pre>
 When running CloudBedlam, a bedlamlogs folder will be created in the folder where the CloudBedlam binary is running. Output file will contain info and error data...
 
-## Contributing
+## Contributing - Please Join In!
 
 Of course, please help make this better 😊 – and add whatever you need around and inside the core bedlam engine (which is what this is, really). The focus for us is on making a *very easy to use, simple to configure, lightweight solution for chaos engineering and experimentation inside virtual machines*.
 

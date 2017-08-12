@@ -13,8 +13,6 @@ This is meant to run chaos experiments <i>inside</i> VMs as a way to experiment 
 
 ### .NET (Mono) version is <a href="https://github.com/GitTorre/CloudBedlamLinux"><b>here</b></a>
 
-### Easy to use 
-
 ### Note: 
 
 ### This has only been rigorously tested on Ubuntu 16.04 LTS (Xenial Xerus)... There will be differences in some of the scripts you'll need to take into account for other distros (specifically, auto installation of required programs, for example...), but for the most part, this should work on most mainline distros with only a few mods... In general, if the Linux variant you want to run CB on supports installation of iproute2, stress, and stress-ng, then it's fine... 
@@ -25,6 +23,8 @@ This is meant to run chaos experiments <i>inside</i> VMs as a way to experiment 
 
 ### Finally, this is the version of CloudBedlam that will be evolving first, not the Mono/.NET Core versions. Changes made here (new features and capabilities...) will be added to those projects at a later date, at my (or, hopefully, somebody else's) discretion --CT
 
+
+### Easy to use 
 Step 0.
 
 Just change JSON settings to meet your specific chaotic needs. The default config will run CPU, Memory and Networking chaos. You can remove the CPU and Memory objects and just do Network emulation or remove Network and just do CPU/Mem. It's configurable, so do what you want! 

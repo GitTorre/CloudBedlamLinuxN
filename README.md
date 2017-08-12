@@ -13,7 +13,7 @@ This is meant to run chaos experiments <i>inside</i> VMs as a way to experiment 
 
 ### .NET (Mono) version is <a href="https://github.com/GitTorre/CloudBedlamLinux"><b>here</b></a>
 
-### Easy to use 
+### Easy to use (Note: this has only been tested on Ubuntu 16.04 (Xenial Xerus)... There will be differences in some of the scripts you'll need to take into account for other distros, but for the most part, this should work on any mainline distro with a few mods only...)
 
 Step 0.
 

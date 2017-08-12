@@ -17,7 +17,7 @@ This is meant to run chaos experiments <i>inside</i> VMs as a way to experiment 
 
 This has only been rigorously tested on Ubuntu 16.04 LTS (Xenial Xerus)... There will be differences in some of the scripts you'll need to take into account for other distros (specifically, auto installation of required programs, for example...), but for the most part, this should work on most mainline distros with only a few mods... In general, if the Linux variant you want to run CB on supports installation of iproute2, stress, and stress-ng, then it's fine... 
 
-Obviously, you need to be <i><b>allowed</b></i> (so, by policy on your team...) to run non-service binaries on the VMs that host your cloud services. Further, due to network emulation via tc (e.g., netem) running inside the kernel, you have to run CB as a sudo user. 
+Obviously, you need to be <i><b>allowed</b></i> (so, by policy on your team...) to run non-service binaries onboard the VMs that host your cloud services. Further, due to network emulation via tc, which runs code inside the kernel, you have to run CB as a sudo user. 
 
 Currently, there is no big red button (Stop) implemented, but it will be coming as this evolves into a system that can be remote controlled over SSH by a mutually trusted service (where having a big red button really matters given in that case you'd probably have multiple VMs running CB...)... In this impl, you control lifetimes of chaotic operations via configuration settings (duration) for each operation you want to use to induce controlled, directed, deterministic chaos as part of your chaos experimentation.
 

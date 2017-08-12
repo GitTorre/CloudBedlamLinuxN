@@ -23,7 +23,7 @@ This is meant to run chaos experiments <i>inside</i> VMs as a way to experiment 
 
 ### Currently, there is no big red button (Stop) implemented, but it will be coming as this evolves into a system that can be remote controlled over SSH by a mutually trusted service.... 
 
-### Finally, this is the version of CloudBedlam that will be evolving first, not the Mono/.NET Core versions. Changes made here (new features and capabilities...) will be added to those projects at a later date, at my (or, hopefully, your) discretion --CT
+### Finally, this is the version of CloudBedlam that will be evolving first, not the Mono/.NET Core versions. Changes made here (new features and capabilities...) will be added to those projects at a later date, at my (or, hopefully, somebody else's) discretion --CT
 
 Step 0.
 

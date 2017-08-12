@@ -11,7 +11,7 @@ Unlike, say, Netflix's ChaosMonkey, shooting down VM instances isn't the interes
 
 This is meant to run chaos experiments <i>inside</i> VMs as a way to experiment close to your code and help you identify resiliency bugs in your design and implementation.
 
-### .NET (Mono) version is <a href="https://github.com/GitTorre/CloudBedlamLinux"><b>here</b></a>
+### .NET (Mono is primary/up to date, .NET Core branch is not synched with Master...) version is <a href="https://github.com/GitTorre/CloudBedlamLinux"><b>here</b></a>
 
 ### Note: 
 

@@ -19,7 +19,7 @@ This is meant to run chaos experiments <i>inside</i> VMs as a way to experiment 
 
 ### Obviously, you need to be <i><b>allowed</b></i> (so, by policy on your team...) to run binaries on the VMs that host your cloud services. Further, due to network emulation via tc (netem) running inside the kernel, you have to run CB as a sudo user. 
 
-### Currently, there is no big red button (Stop) implemented, but it will be coming as this evolves into a system that can be remote controlled over SSH by a mutually trusted service.... 
+### Currently, there is no big red button (Stop) implemented, but it will be coming as this evolves into a system that can be remote controlled over SSH by a mutually trusted service (where having a big red button really matters)... In this impl, you control bedlam via setting duration times for each operation you want to use to induce controlled, directed, deterministic chaos. If you aren't doing Chaos Engineering in the cloud (you should spend time learning about Chaos Engineering the discipline), then this tool isn't really for you unless of course you want to use it to run stress tests on Linux clients, which is fine.
 
 ### Finally, this is the version of CloudBedlam that will be evolving first, not the Mono/.NET Core versions. Changes made here (new features and capabilities...) will be added to those projects at a later date, at my (or, hopefully, somebody else's) discretion --CT
 

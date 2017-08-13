@@ -77,6 +77,7 @@ struct Endpoint
 
 typedef enum
 {
+    None,
     Bandwidth,
     Corruption,
     Disconnect,
@@ -121,7 +122,7 @@ struct NetworkEmulationProfile
     vector<Endpoint> Endpoints;
     int Duration = 0;
     int RunOrder = 0;
-    EmulationType Type;
+    EmulationType Type = None;
     string CmdArgs = "";
 };
 
@@ -436,6 +437,13 @@ inline void RunNetworkEmulation()
             ips = ips.substr(0, ips.size() - 1);
 
             string s_emType = g_json["ChaosConfiguration"]["NetworkEmulation"]["EmulationType"].string_value();
+
+            if(s_emType.empty())
+            {
+                g_logger->error("You must supply an emulation type...");
+                return;
+            }
+
             string netemLogType;
             EmulationType emType = MapStringToEmulationType[s_emType];
             string bashCmd;

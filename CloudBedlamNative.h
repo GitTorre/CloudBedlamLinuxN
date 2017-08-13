@@ -63,7 +63,7 @@ Orchestration g_orchestration;
 std::shared_ptr<spd::logger> g_logger;
 //Operational settings...
 bool g_bCPUConfig, g_bMemConfig, g_bNetemConfig, g_bRepeating = false;
-string g_loginfoNetem, g_loginfoCpu, g_logInfoMem = "";
+string g_loginfoNetem, g_loginfoCpu, g_logInfoMem;
 //container used for sequential/random orchestration of bedlam operations...
 vector<pair<void(*)(),int>> g_seqrunVec;
 
@@ -86,40 +86,19 @@ typedef enum
 } EmulationType;
 
 // string->object enum/objects mappers...
-map<string, Orchestration> MapStringToOrchestration =
-        {
-                { "Concurrent", Concurrent },
-                { "Random", Random },
-                { "Sequential", Sequential }
-        };
-//TODO: Add support (bash) to specifying protocol...
-map<string, Protocol> MapStringToProtocol =
-        {
-                { "ALL", ALL_PROTOCOL },
-                { "AH", AH },
-                { "ESP",  ESP },
-                { "ICMP", ICMP },
-                { "ICMPv6", ICMPv6 },
-                { "TCP",  TCP },
-                { "UDP",  UDP }
-        };
-//TODO: Add support (bash) to specifying network type...
-map<string, NetworkType> MapStringToNetworkType =
-        {
-                { "ALL", ALL_NETWORK },
-                { "IPv4", Ipv4 },
-                { "IPv6", Ipv6 },
-        };
 
-map<string, EmulationType> MapStringToEmulationType =
-        {
-            { "Bandwidth", Bandwidth },
-            { "Corruption", Corruption },
-            { "Disconnect", Disconnect },
-            { "Latency", Latency },
-            { "Loss", Loss },
-            { "Reorder", Reorder }
-        };
+//Orchestration...
+map<string, Orchestration> MapStringToOrchestration;
+
+//TODO: Add support (bash) to specifying protocol...
+//Protocol...
+map<string, Protocol> MapStringToProtocol;
+
+//TODO: Add support (bash) to specifying network type...
+//Network type...
+map<string, NetworkType> MapStringToNetworkType;
+//Emulation type...
+map<string, EmulationType> MapStringToEmulationType;
 
 // Fault objects...
 // These structs just hold data passed to bash scripts (CmdArgs)...
@@ -166,7 +145,7 @@ inline string hostname2ips(const string &hostname)
 
     if(err != 0)
     {
-        printf("error: %s\n", gai_strerror(err));
+        g_logger->error(gai_strerror(err));
         return "";
     }
 
@@ -467,11 +446,11 @@ inline void RunNetworkEmulation()
                 {
                     Netem.Type = Bandwidth;
                     netemLogType = "Bandwidth emulation";
-                    int upbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["BandwidthUpstreamSpeed"].int_value();
-                    int dbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["BandwidthDownstreamSpeed"].int_value();
+                    auto upbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["BandwidthUpstreamSpeed"].number_value();
+                    auto dbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["BandwidthDownstreamSpeed"].number_value();
 
                     Netem.CmdArgs =
-                            "Bash/netem-bandwidth.sh -ips=" + ips + " " + to_string(dbw) + " " +
+                            "Bash/netem-bandwidth.sh -ips=" + ips + " " + to_string(dbw) + " " + to_string(upbw) + " " +
                             to_string(Netem.Duration) +
                             "s";
                     break;
@@ -480,8 +459,7 @@ inline void RunNetworkEmulation()
                 {
                     Netem.Type = Corruption;
                     netemLogType = "Corruption emulation";
-                    auto pt = g_json["ChaosConfiguration"]["NetworkEmulation"]["PacketPercentage"].int_value() *
-                              100; //e.g., 0.05 * 100 = 5...
+                    auto pt = g_json["ChaosConfiguration"]["NetworkEmulation"]["PacketPercentage"].number_value() * 100; //e.g., 0.05 * 100 = 5...
                     Netem.CmdArgs = "Bash/netem-corrupt.sh -ips=" + ips + " " +
                                     to_string(pt) + " " + to_string(Netem.Duration) + "s";
                     break;
@@ -501,8 +479,7 @@ inline void RunNetworkEmulation()
                 {
                     Netem.Type = Loss;
                     netemLogType = "Loss (Random) emulation";
-                    auto inloss = g_json["ChaosConfiguration"]["NetworkEmulation"]["RandomLossRate"].int_value();
-                    auto lossRate = inloss * 100; //e.g., 0.05 * 100 = 5...
+                    auto lossRate = g_json["ChaosConfiguration"]["NetworkEmulation"]["RandomLossRate"].number_value() * 100; //e.g., 0.05 * 100 = 5...
 
                     Netem.CmdArgs =
                             "Bash/netem-loss.sh -ips=" + ips + " " + to_string(lossRate) + " " +
@@ -513,7 +490,7 @@ inline void RunNetworkEmulation()
                 {
                     Netem.Type = Latency;
                     netemLogType = "Latency emulation";
-                    int delay = g_json["ChaosConfiguration"]["NetworkEmulation"]["LatencyDelay"].int_value();
+                    auto delay = g_json["ChaosConfiguration"]["NetworkEmulation"]["LatencyDelay"].number_value();
 
                     Netem.CmdArgs = "Bash/netem-latency.sh -ips=" + ips + " " + to_string(delay) + "ms " + " " +
                                     to_string(Netem.Duration) + "s";
@@ -524,9 +501,9 @@ inline void RunNetworkEmulation()
                     Netem.Type = Reorder;
                     netemLogType = "Reorder emulation";
                     auto correlationpt =
-                            g_json["ChaosConfiguration"]["NetworkEmulation"]["CorrelationPercentage"].int_value() * 100;
+                            g_json["ChaosConfiguration"]["NetworkEmulation"]["CorrelationPercentage"].number_value() * 100;
                     auto packetpt =
-                            g_json["ChaosConfiguration"]["NetworkEmulation"]["PacketPercentage"].int_value() * 100;
+                            g_json["ChaosConfiguration"]["NetworkEmulation"]["PacketPercentage"].number_value() * 100;
 
                     Netem.CmdArgs = "Bash/netem-reorder.sh -ips=" + ips + " " + to_string(packetpt) + " " +
                                     to_string(correlationpt) + " " + to_string(Netem.Duration);
@@ -595,6 +572,13 @@ inline bool ParseConfigurationObjectAndInitialize()
         bool isChaosConfigObj = g_json["ChaosConfiguration"].is_object();
         if (isChaosConfigObj)
         {
+            MapStringToOrchestration =
+            {
+                { "Concurrent", Concurrent },
+                { "Random", Random },
+                { "Sequential", Sequential }
+            };
+
             auto isOrch = g_json["ChaosConfiguration"]["Orchestration"].is_string();
             if (isOrch)
             {
@@ -660,6 +644,32 @@ inline bool ParseConfigurationObjectAndInitialize()
                 //Netem
                 if (g_bNetemConfig)
                 {
+                    MapStringToEmulationType =
+                    {
+                            { "Bandwidth", Bandwidth },
+                            { "Corruption", Corruption },
+                            { "Disconnect", Disconnect },
+                            { "Latency", Latency },
+                            { "Loss", Loss },
+                            { "Reorder", Reorder }
+                    };
+                    MapStringToProtocol =
+                    {
+                            { "ALL", ALL_PROTOCOL },
+                            { "AH", AH },
+                            { "ESP",  ESP },
+                            { "ICMP", ICMP },
+                            { "ICMPv6", ICMPv6 },
+                            { "TCP",  TCP },
+                            { "UDP",  UDP }
+                    };
+                    MapStringToNetworkType =
+                    {
+                            { "ALL", ALL_NETWORK },
+                            { "IPv4", Ipv4 },
+                            { "IPv6", Ipv6 },
+                    };
+
                     bool isRunOrder = g_json["ChaosConfiguration"]["NetworkEmulation"]["RunOrder"].is_number();
                     if (isRunOrder)
                     {

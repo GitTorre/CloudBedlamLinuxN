@@ -6,4 +6,4 @@ duration="$2"
 apt install stress-ng  2> /dev/null > /dev/null
 
 echo "Stressing all CPUs at $pressurelevel% capacity for $duration"s...
-stress-ng -c 0 -l $pressurelevel -t $duration
+stress-ng -c 0 -l ${pressurelevel} -t ${duration}

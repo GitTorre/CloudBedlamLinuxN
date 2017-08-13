@@ -21,8 +21,6 @@ Obviously, you need to be <i><b>allowed</b></i> (so, by policy on your team...) 
 
 Currently, there is no big red button (Stop) implemented, but it will be coming as this evolves into a system that can be remote controlled over SSH by a mutually trusted service (where having a big red button really matters given in that case you'd probably have multiple VMs running CB...)... In this impl, you control lifetimes of chaotic operations via configuration settings (duration) for each operation you want to use to induce controlled, directed, deterministic chaos as part of your chaos experimentation.
 
-Finally, this is the version of CloudBedlam that will be evolving first, not the Mono/.NET Core versions. Changes made here (new features and capabilities...) will be added to those projects at a later date, at my (or, hopefully, somebody else's) discretion.
-
 
 ### Easy to use 
 Step 0.

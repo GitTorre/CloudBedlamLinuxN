@@ -50,7 +50,11 @@ Homepage: http://www.linux-foundation.org/en/Net:Iproute2
 
 ### Example configuration:
 
-The JSON below instructs CloudBedlam to sequentially run (according to specified run order) a CPU pressure fault of 90% CPU utilization across all CPUs for 15 seconds, Memory pressure fault eating 90% of available memory for 15 seconds, and Network Bandwidth emulation of 56kbits for 30 seconds for specified target endpoints. The experiment runs 3 times successively ("Repeat": 2) with a start delay of 5 seconds (RunDelay: 5) per iteration. See [TODO] for more info on available configuration settings, including samples. CloudBedlam will execute (and log) the orchestration of these bedlam operations. You just need to modify some JSON and then experiment away. Enjoy!
+The JSON below instructs CloudBedlam to sequentially run (according to specified run order) a CPU pressure fault of 90% CPU utilization across all CPUs for 15 seconds, Memory pressure fault eating 90% of available memory for 15 seconds, and Network Bandwidth emulation of 56kbits for 30 seconds for specified target endpoints. The experiment runs 3 times successively ("Repeat": 2) with a start delay of 5 seconds (RunDelay: 5) per iteration. 
+
+### Note: See <b><a href="https://github.com/GitTorre/CloudBedlamLinuxN/blob/master/NetemReadMe.md">this</a></b> for example network emulation configuration settings. 
+
+CloudBedlam will execute (and log) the orchestration of these bedlam operations. You just need to modify some JSON and then experiment away. Enjoy!
 <pre><code>
 {
   "ChaosConfiguration": {

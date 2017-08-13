@@ -111,6 +111,14 @@ whomever:~/work/src/CBLinuxN$ sudo ./CBLinuxN
 </code></pre>
 When running CloudBedlam, a bedlamlogs folder will be created in the folder where the CloudBedlam binary is running. Output file will contain info and error data...
 
+## Deploying
+When deploying to a target VM, you must include the <i>CloudBedlam</i> binary (or whatever you name it when you build...), the <i>Chaos.json</i> file, and the Bash <b>folder</b> in the same <b>directory</b>. e.g.,:
+
+<b>CloudBedlam</b>  
+    ------ &nbsp;&nbsp;&nbsp;&nbsp;<b>Bash</b>  
+    ------ &nbsp;&nbsp;&nbsp;&nbsp;<i>CloudBedlam</i>  
+    ------ &nbsp;&nbsp;&nbsp;&nbsp;<i>Chaos.json</i>  
+
 ## Contributing - Please Join In!
 
 Of course, please help make this better 😊 – and add whatever you need around and inside the core bedlam engine (which is what this is, really). The focus for us is on making a *very easy to use, simple to configure, lightweight solution for chaos engineering and experimentation inside virtual machines*.

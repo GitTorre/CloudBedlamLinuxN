@@ -6,6 +6,7 @@ Examples of supported Network Emulation JSON configuration:
       "Duration": 15,
       "EmulationType": "Bandwidth",
       "BandwidthDownstreamSpeed" : 56,
+      "BandwidthUpstreamSpeed" : 33
       "RunOrder": 0,
       "Endpoints": [
         {

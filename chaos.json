@@ -7,18 +7,18 @@
     "CpuPressure": {
       "Duration": 15,
       "PressureLevel": 90,
-      "RunOrder": 1 
-    }, 
+      "RunOrder": 1
+    },
     "MemoryPressure": {
       "Duration": 15,
       "PressureLevel": 90,
-      "RunOrder": 2 
+      "RunOrder": 2
     },
     "NetworkEmulation": {
       "Duration": 15,
       "EmulationType": "Bandwidth",
-      "BandwidthUpstreamSpeed" : 56,
-      "BandwidthDownstreamSpeed" : 33.5,
+      "UpstreamSpeed" : 56,
+      "DownstreamSpeed" : 33.5,
       "RunOrder": 0,
       "Endpoints": [
         {

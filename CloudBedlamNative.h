@@ -454,8 +454,8 @@ inline void RunNetworkEmulation()
                 {
                     Netem.Type = Bandwidth;
                     netemLogType = "Bandwidth emulation";
-                    auto upbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["BandwidthUpstreamSpeed"].number_value();
-                    auto dbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["BandwidthDownstreamSpeed"].number_value();
+                    auto upbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["UpstreamSpeed"].number_value();
+                    auto dbw = g_json["ChaosConfiguration"]["NetworkEmulation"]["DownstreamSpeed"].number_value();
 
                     Netem.CmdArgs =
                             "Bash/netem-bandwidth.sh -ips=" + ips + " " + to_string(dbw) + " " + to_string(upbw) + " " +

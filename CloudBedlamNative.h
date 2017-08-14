@@ -24,6 +24,8 @@
 #include <iostream>
 #include <memory>
 #include <sys/stat.h>
+#include <time.h>
+#include <bits/stat.h>
 
 using namespace json11;
 using namespace std;
@@ -550,7 +552,12 @@ inline void InitGlobals()
         mkdir("bedlamlogs", 0700);
     }
 
-    g_logger = spd::basic_logger_mt("basic_logger", "bedlamlogs/bedlam.log");
+    char filename[46];
+    struct tm *ctime;
+    time_t now = time(nullptr);
+    ctime = gmtime(&now);
+    strftime(filename, sizeof(filename), "bedlamlogs/%Y-%m-%d_%H:%M:%S_bedlam.log", ctime);
+    g_logger = spd::basic_logger_mt("cb_logger", filename);
     g_logger->info("globals initialized and set...");
 
 }
@@ -564,7 +571,7 @@ inline bool ParseConfigurationObjectAndInitialize()
 		{
 			chaos_config.seekg(0, ios::end);
 			auto size = chaos_config.tellg();
-			string buffer(size, ' ');
+			string buffer(static_cast<unsigned long>(size), ' ');
 			chaos_config.seekg(0);
 			chaos_config.read(&buffer[0], size);
 			string err;

@@ -50,9 +50,7 @@ Homepage: http://www.linux-foundation.org/en/Net:Iproute2
 
 ### Example configuration:
 
-The JSON below instructs CloudBedlam to sequentially run (according to specified run order) a CPU pressure fault of 90% CPU utilization across all CPUs for 15 seconds, Memory pressure fault eating 90% of available memory for 15 seconds, and Network Bandwidth emulation of 56kbits for 30 seconds for specified target endpoints. The experiment runs 3 times successively ("Repeat": 2) with a start delay of 5 seconds (RunDelay: 5) per iteration. 
-
-### Note: See <b><a href="https://github.com/GitTorre/CloudBedlamLinuxN/blob/master/NetemReadMe.md">this</a></b> for example network emulation configuration settings. 
+The JSON below instructs CloudBedlam to sequentially run (according to specified run order) a CPU pressure fault of 90% CPU utilization across all CPUs for 15 seconds, Memory pressure fault eating 90% of available memory for 15 seconds, and Network Bandwidth emulation of 56kbits for 30 seconds for specified target endpoints. The experiment runs 3 times successively ("Repeat": 2) with a start delay of 5 seconds (RunDelay: 5) per iteration.  
 
 CloudBedlam will execute (and log) the orchestration of these bedlam operations. You just need to modify some JSON and then experiment away. Enjoy!
 <pre><code>
@@ -98,6 +96,8 @@ CloudBedlam will execute (and log) the orchestration of these bedlam operations.
   }
 }
 </pre></code>
+### Note: See <b><a href="https://github.com/GitTorre/CloudBedlamLinuxN/blob/master/NetemReadMe.md">this</a></b> for example network emulation configuration settings.
+
 All orchestration, repeat, and delay settings are implemented. You can run all the bedlam ops at once (and create true bedlam...) using Concurrent as the Orchestration setting. Sequential runs through the operations according to the RunOrder you provide for each object in the json config file. Random runs the operations in random order, sequentially. You can delay the start of bedlam by setting Delay to some number of seconds. You can repeat the orchestration of bedlam by setting Repeat to some integer value... 
 
 There is more work to do vis a vis network emulation: I need to add support for specifying port ranges, protocols, network layer. This is in flight. However, in it's current form, CloudBedlam is highly useful for enabling chaotic experimentation inside Linux VMs. Please make pull requests if you find bugs or have great ideas for improvement. Thank you!

@@ -109,7 +109,6 @@ CloudBedlam will execute (and log) the orchestration of these bedlam operations.
   }
 }
 </pre></code>
-### Note: See <b><a href="https://github.com/GitTorre/CloudBedlamLinuxN/blob/master/NetemReadMe.md">this</a></b> for example network emulation configuration settings.
 
 All orchestration, repeat, and delay settings are implemented. You can run all the bedlam ops at once (and create true bedlam...) using Concurrent as the Orchestration setting. Sequential runs through the operations according to the RunOrder you provide for each object in the json config file. Random runs the operations in random order, sequentially. You can delay the start of bedlam by setting Delay to some number of seconds. You can repeat the orchestration of bedlam by setting Repeat to some integer value... 
 

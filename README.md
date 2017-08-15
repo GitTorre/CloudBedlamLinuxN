@@ -86,7 +86,7 @@ CloudBedlam will execute (and log) the orchestration of these bedlam operations.
       "Duration": 15,
       "EmulationType": "Bandwidth",
       "UpstreamSpeed" : 56,
-      "DownstreamSpeed" : 33.5,
+      "DownstreamSpeed" : 33.6,
       "RunOrder": 0,
       "Endpoints": [
         {

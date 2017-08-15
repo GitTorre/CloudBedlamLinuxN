@@ -25,15 +25,28 @@ Currently, there is no big red button (Stop) implemented, but it will be coming 
 ### Easy to use 
 Step 0.
 
-Just change JSON settings to meet your specific chaotic needs. The default config will run CPU, Memory and Networking chaos. You can remove the CPU and Memory objects and just do Network emulation or remove Network and just do CPU/Mem. It's configurable, so do what you want! 
+Just change JSON settings to meet your specific chaotic needs. The default config will run CPU, Memory and Networking chaos. You can remove the CPU and Memory objects and just do Network emulation or remove Network and just do CPU/Mem. It's configurable, so do what you want!
 
-Currently supported IPv4/IPV6 network emulation operations:
+Operational Orchestration (Orchestration setting):  
+
+Concurrent (run all operations at the same time)  
+Random (run operations sequentially, in random order)  
+Sequential (run operations sequentially, based on specified run order (RunOrder))  
+
+Currently supported machine resource pressure operations:  
+
+CPU (all CPUs) - CpuPressure setting (0 - 100)  
+Memory (non-swap.. TODO) - MemoryPressure setting (0 - 100)  
+
+Currently <a href="https://github.com/GitTorre/CloudBedlamLinuxN/blob/master/NetemReadMe.md" target="new">supported IPv4/IPV6 network emulation operations</a> - NetworkEmulation setting:
 
 Packet Corruption  
 Packet Loss  
 Packet Reordering  
 Bandwidth Rate Limiting  
-Latency  
+Latency 
+
+Note: Network emulation is done for specific endpoints (specified as hostnames) only - Enpoints object (array of Endpoint). CloudBedlam figures out Network type (IPv4 or IPv6) and IPs from hostnames.       
 
 #### NOTE: 
 Network emulation requires iproute2 tools (tc and ip, particularly, in CB's case...). This should be present on most mainline distros already, but make sure...

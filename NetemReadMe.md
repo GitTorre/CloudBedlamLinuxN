@@ -7,7 +7,6 @@ Examples of supported Network Emulation JSON configuration:
       "EmulationType": "Bandwidth",
       "UpstreamSpeed" : 56,
       "DownstreamSpeed" : 33.5,
-      "RunOrder": 0,
       "Endpoints": [
         {
           "Port": 443,
@@ -35,7 +34,6 @@ Examples of supported Network Emulation JSON configuration:
       "Duration": 15,
       "EmulationType": "Corruption",
       "PacketPercentage" : 0.10,
-      "RunOrder": 0,
       "Endpoints": [
         {
           "Port": 443,
@@ -62,7 +60,6 @@ Examples of supported Network Emulation JSON configuration:
       "Duration": 15,
       "EmulationType": "Latency",
       "LatencyDelay" : 1000,
-      "RunOrder": 0,
       "Endpoints": [
         {
           "Port": 443,
@@ -83,31 +80,59 @@ Examples of supported Network Emulation JSON configuration:
     }
 </code></pre>
 
-<b>Loss</b>
+<b>Loss - Burst</b>
 <pre><code>
  "NetworkEmulation": {
-      "Duration": 15,
-      "EmulationType": "Loss",
-      "RandomLossRate" : 0.10,
-      "RunOrder": 0,
-      "Endpoints": [
-        {
-          "Port": 443,
-          "Hostname": "www.bing.com",
-          "Protocol": "ALL"
-        },
-        {
-          "Port": 80,
-          "Hostname": "www.msn.com",
-          "Protocol": "ALL"
-        },
-        {
-          "Port": 443,
-          "Hostname": "www.google.com",
-          "Protocol": "ALL"
-        }
-      ]
-    }
+       "Duration": 10,
+       "EmulationType": "Loss",
+       "LossType": "Burst",
+       "BurstRate": 0.30,
+       "LossRate": 0.25,
+       "Endpoints": [
+         {
+           "Port": 443,
+           "Hostname": "www.bing.com",
+           "Protocol": "ALL"
+         },
+         {
+           "Port": 80,
+           "Hostname": "www.msn.com",
+           "Protocol": "ALL"
+         },
+         {
+           "Port": 443,
+           "Hostname": "www.google.com",
+           "Protocol": "ALL"
+         }
+       ]
+     }
+</code></pre>
+
+<b>Loss - Random</b>
+<pre><code>
+ "NetworkEmulation": {
+       "Duration": 10,
+       "EmulationType": "Loss",
+       "LossType": "Random",
+       "LossRate": 0.25,
+       "Endpoints": [
+         {
+           "Port": 443,
+           "Hostname": "www.bing.com",
+           "Protocol": "ALL"
+         },
+         {
+           "Port": 80,
+           "Hostname": "www.msn.com",
+           "Protocol": "ALL"
+         },
+         {
+           "Port": 443,
+           "Hostname": "www.google.com",
+           "Protocol": "ALL"
+         }
+       ]
+     }
 </code></pre>
 
 <b>Reorder</b>
@@ -117,7 +142,6 @@ Examples of supported Network Emulation JSON configuration:
       "EmulationType": "Reorder",
       "CorrelationPercentage" : 0.20,
       "PacketPercentage" : 0.10,
-      "RunOrder": 0,
       "Endpoints": [
         {
           "Port": 443,

@@ -488,12 +488,28 @@ inline void RunNetworkEmulation()
                 case Loss:
                 {
                     Netem.Type = Loss;
-                    netemLogType = "Loss (Random) emulation";
-                    auto lossRate = g_json["ChaosConfiguration"]["NetworkEmulation"]["RandomLossRate"].number_value() * 100; //e.g., 0.05 * 100 = 5...
+                    string lossType = "Random";
+                    bool hasLossType = g_json["ChaosConfiguration"]["NetworkEmulation"]["LossType"].is_string();
+                    if(hasLossType)
+                    {
+                        lossType = g_json["ChaosConfiguration"]["NetworkEmulation"]["LossType"].string_value();
+                    }
+                    auto lossRate = 0, burstRate = 0;
+                    bool isRandom = g_json["ChaosConfiguration"]["NetworkEmulation"]["LossRate"].is_number();
+                    if(isRandom)
+                    {
+                        lossRate = g_json["ChaosConfiguration"]["NetworkEmulation"]["LossRate"].number_value() * 100;
+                    }
+                    bool isBurst = g_json["ChaosConfiguration"]["NetworkEmulation"]["BurstRate"].is_number();
+                    if(isBurst)
+                    {
+                        burstRate = g_json["ChaosConfiguration"]["NetworkEmulation"]["BurstRate"].number_value() * 100;
+                    }
+                    netemLogType = lossType + " Loss emulation";
 
                     Netem.CmdArgs =
                             "Bash/netem-loss.sh -ips=" + ips + " " + to_string(lossRate) + " " +
-                            to_string(Netem.Duration);
+                                    to_string(burstRate) + " " + to_string(Netem.Duration);
                     break;
                 }
                 case Latency:
@@ -645,6 +661,19 @@ inline bool ParseConfigurationObjectAndInitialize()
                         int r = g_json["ChaosConfiguration"]["CpuPressure"]["RunOrder"].int_value();
                         g_seqrunVec.emplace_back(RunCpuPressure, r);
                     }
+                    else // no order specified...
+                    {
+                        auto r = g_seqrunVec.size();
+                        if(r > 0)
+                        {
+                            r += 1;
+                        }
+                        else
+                        {
+                            r = 0;
+                        }
+                        g_seqrunVec.emplace_back(RunCpuPressure, r);
+                    }
                 }
                 //Mem
                 if (g_bMemConfig)
@@ -653,6 +682,19 @@ inline bool ParseConfigurationObjectAndInitialize()
                     if (isRunOrder)
                     {
                         int r = g_json["ChaosConfiguration"]["MemoryPressure"]["RunOrder"].int_value();
+                        g_seqrunVec.emplace_back(RunMemoryPressure, r);
+                    }
+                    else // no order specified...
+                    {
+                        auto r = g_seqrunVec.size();
+                        if(r > 0)
+                        {
+                            r += 1;
+                        }
+                        else
+                        {
+                            r = 0;
+                        }
                         g_seqrunVec.emplace_back(RunMemoryPressure, r);
                     }
                 }
@@ -691,6 +733,20 @@ inline bool ParseConfigurationObjectAndInitialize()
                         int r = g_json["ChaosConfiguration"]["NetworkEmulation"]["RunOrder"].int_value();
                         g_seqrunVec.emplace_back(RunNetworkEmulation, r);
                     }
+                    else // no order specified...
+                    {
+                        auto r = g_seqrunVec.size();
+                        if(r > 0)
+                        {
+                            r += 1;
+                        }
+                        else
+                        {
+                            r = 0;
+                        }
+                        g_seqrunVec.emplace_back(RunNetworkEmulation, r);
+                    }
+
                 }
             }
             return true;

@@ -1,25 +1,14 @@
 {
   "ChaosConfiguration": {
     "Orchestration": "Sequential",
-    "Duration": 60,
-    "RunDelay": 0,
+    "Duration": 10,
     "Repeat": 1,
-    "CpuPressure": {
-      "Duration": 15,
-      "PressureLevel": 90,
-      "RunOrder": 1
-    },
-    "MemoryPressure": {
-      "Duration": 15,
-      "PressureLevel": 90,
-      "RunOrder": 2
-    },
     "NetworkEmulation": {
-      "Duration": 15,
-      "EmulationType": "Bandwidth",
-      "UpstreamSpeed" : 56,
-      "DownstreamSpeed" : 33.6,
-      "RunOrder": 0,
+      "Duration": 10,
+      "EmulationType": "Loss",
+      "LossType": "Burst",
+      "BurstRate": 0.30,
+      "LossRate": 0.25,
       "Endpoints": [
         {
           "Port": 443,

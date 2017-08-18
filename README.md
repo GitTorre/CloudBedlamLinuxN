@@ -36,12 +36,15 @@ Currently, there is no big red button (Stop) implemented, but it will be coming 
 Step 0.
 
 Just change JSON settings to meet your specific chaotic needs. The default config will run CPU, Memory and Networking chaos. You can remove the CPU and Memory objects and just do Network emulation or remove Network and just do CPU/Mem. It's configurable, so do what you want!
+       
+#### ChaosConfiguration properties:
 
-#### Operational Orchestration (Orchestration setting):  
-
-       Concurrent (run all operations at the same time)  
-       Random (run operations sequentially, in random order)  
-       Sequential (run operations sequentially, based on specified run order (RunOrder))  
+       Delay - Time in seconds to wait until starting chaotic operations  
+       Repeat - Number of times to repeat a complete run  
+       Orchestration - How to run through the operations    
+              --> Concurrent (run all operations at the same time)  
+              --> Random (run operations sequentially, in random order)  
+              --> Sequential (run operations sequentially, based on specified run orders)  
 
 #### Currently supported machine resource pressure operations:  
 

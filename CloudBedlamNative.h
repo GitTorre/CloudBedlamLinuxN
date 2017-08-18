@@ -664,14 +664,7 @@ inline bool ParseConfigurationObjectAndInitialize()
                     else // no order specified...
                     {
                         auto r = g_seqrunVec.size();
-                        if(r > 0)
-                        {
-                            r += 1;
-                        }
-                        else
-                        {
-                            r = 0;
-                        }
+                        r > 0 ? (r += 1) : (r = 0);
                         g_seqrunVec.emplace_back(RunCpuPressure, r);
                     }
                 }
@@ -687,14 +680,7 @@ inline bool ParseConfigurationObjectAndInitialize()
                     else // no order specified...
                     {
                         auto r = g_seqrunVec.size();
-                        if(r > 0)
-                        {
-                            r += 1;
-                        }
-                        else
-                        {
-                            r = 0;
-                        }
+                        r > 0 ? (r += 1) : (r = 0);
                         g_seqrunVec.emplace_back(RunMemoryPressure, r);
                     }
                 }
@@ -736,14 +722,7 @@ inline bool ParseConfigurationObjectAndInitialize()
                     else // no order specified...
                     {
                         auto r = g_seqrunVec.size();
-                        if(r > 0)
-                        {
-                            r += 1;
-                        }
-                        else
-                        {
-                            r = 0;
-                        }
+                        r > 0 ? (r += 1) : (r = 0);
                         g_seqrunVec.emplace_back(RunNetworkEmulation, r);
                     }
 

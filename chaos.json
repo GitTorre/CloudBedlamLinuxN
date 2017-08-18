@@ -4,11 +4,11 @@
     "Duration": 10,
     "Repeat": 1,
     "NetworkEmulation": {
-      "Duration": 10,
+      "Duration": 90,
       "EmulationType": "Loss",
       "LossType": "Burst",
-      "BurstRate": 0.30,
-      "LossRate": 0.25,
+      "BurstRate": 0.25,
+      "LossRate": 0.35,
       "Endpoints": [
         {
           "Port": 443,

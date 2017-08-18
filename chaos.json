@@ -1,10 +1,9 @@
 {
   "ChaosConfiguration": {
     "Orchestration": "Sequential",
-    "Duration": 10,
     "Repeat": 1,
     "NetworkEmulation": {
-      "Duration": 90,
+      "Duration": 30,
       "EmulationType": "Loss",
       "LossType": "Burst",
       "BurstRate": 0.25,
@@ -26,6 +25,14 @@
           "Protocol": "ALL"
         }
       ]
+    },
+    "CpuPressure": {
+      "PressureLevel": 90,
+      "Duration": 15
+    },
+    "MemoryPressure": {
+      "PressureLevel": 80,
+      "Duration": 15
     }
   }
 }

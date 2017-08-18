@@ -45,11 +45,13 @@ Just change JSON settings to meet your specific chaotic needs. The default confi
 
 #### Currently supported machine resource pressure operations:  
 
-       CPU (all CPUs) - CpuPressure setting (0 - 100)  
-       Memory (non-swap.. TODO) - MemoryPressure setting (0 - 100) 
-       CPU/Mem json object properties:  
-       Duration - Time in seconds to run the operation  
-       RunOrder - 0 based run order specifier (if you don't supply this, the system will take care of ordering)  
+       CpuPressure (all CPUs)
+       MemoryPressure (non-swap)  
+       
+       Cpu/MemoryPressure json object properties:  
+              --> PressureLevel - Percentage pressure level (0 - 100)
+              --> Duration - Time in seconds to run the operation  
+              --> RunOrder - 0 based run order specifier (if you don't supply this, the system will take care of ordering)  
 
 #### Currently<a href="https://github.com/GitTorre/CloudBedlamLinuxN/blob/master/NetemReadMe.md" target="blank"> supported IPv4/IPV6 network emulation operations</a> - (NetworkEmulation settings)
        

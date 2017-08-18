@@ -62,7 +62,7 @@ Just change JSON settings to meet your specific chaotic needs. The default confi
              --> Latency 
              --> Loss  
              --> Reorder 
-       Endpoints - target endpoints to affect with emulation (only supplied endpoints will experience specified networking state...)  
+       Endpoints - target endpoints to affect with emulation    
               --> Hostname - host to affect with emulation  
               --> Port - Port to affect with emulation
               --> Protocol (see below) - The network protocol to affect with emulation

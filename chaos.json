@@ -31,7 +31,7 @@
       "Duration": 15
     },
     "MemoryPressure": {
-      "PressureLevel": 80,
+      "PressureLevel": 90,
       "Duration": 15
     }
   }

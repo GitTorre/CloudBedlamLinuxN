@@ -44,11 +44,11 @@ do
 	then
 			${TC} filter add dev ${interface} parent 1:0 protocol ip prio 1 u32 match ip dst ${address} flowid 1:1
 			${TC} filter add dev ${interface} parent 1:0 protocol ip prio 1 u32 match ip src ${address} flowid 1:1
-			echo "IPv4 packets for IP $address randomly dropped at $lossrate loss rate $sburst"
+			echo "IPv4 packets for IP ${address} randomly dropped at ${lossrate} loss rate ${sburst}"
 	else
 			${TC} filter add dev ${interface} parent 1:0 protocol ipv6 prio 3 u32 match ip6 dst ${address} flowid 1:1
 			${TC} filter add dev ${interface} parent 1:0 protocol ipv6 prio 4 u32 match ip6 src ${address} flowid 1:1
-			echo "IPv6 packets for IP $address randomly dropped at $lossrate loss rate $sburst"
+			echo "IPv6 packets for IP ${address} randomly dropped at ${lossrate} loss rate ${sburst}"
 	fi
 
 done

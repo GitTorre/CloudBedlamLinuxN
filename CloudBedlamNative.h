@@ -130,6 +130,13 @@ struct NetworkEmulationProfile
 
 /**Impls...**/
 
+unsigned long long getTotalSystemMemory()
+{
+    long pages = sysconf(_SC_PHYS_PAGES);
+    long page_size = sysconf(_SC_PAGE_SIZE);
+    return pages * page_size;
+}
+
 inline string hostname2ips(const string &hostname)
 {
     struct addrinfo* addrinfo = nullptr;
@@ -369,7 +376,7 @@ inline void RunMemoryPressure()
                 Mem.PressureLevel = level;
             }
             Mem.CmdArgs += to_string(Mem.PressureLevel) + " " + to_string(Mem.Duration);
-            g_logInfoMem = "Starting memory pressure: " + to_string(Mem.PressureLevel) + "% " + to_string(Mem.Duration) + "s";
+            g_logInfoMem = "Starting memory pressure: " + to_string(Mem.PressureLevel) + " " + to_string(Mem.Duration) + "s";
         }
     }
     g_logger->info(g_logInfoMem);

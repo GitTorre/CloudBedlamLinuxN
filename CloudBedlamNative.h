@@ -725,7 +725,6 @@ inline bool ParseConfigurationObjectAndInitialize()
                         r > 0 ? (r += 1) : (r = 0);
                         g_seqrunVec.emplace_back(RunNetworkEmulation, r);
                     }
-
                 }
             }
             return true;

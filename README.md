@@ -78,8 +78,6 @@ Just change JSON settings to meet your specific chaotic needs. The default confi
        ICMP
        TCP
        UDP
-       ESP
-       AH
        ICMPv6
        
 #### Network emulation is done for specific endpoints (specified as hostnames) only - Endpoints object. CloudBedlam determines currrent Network type (IPv4 or IPv6) and IPs from hostnames.     

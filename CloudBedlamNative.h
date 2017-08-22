@@ -481,17 +481,6 @@ inline void RunNetworkEmulation()
                                     to_string(pt) + " " + to_string(Netem.Duration) + "s";
                     break;
                 }
-                case Disconnect: //TODO...
-                {
-                    /*
-                    netemLogType = L"Disconnection emulation";
-
-                    auto PeriodicDisconnectionRate = g_json["ChaosConfiguratioin"]["NetworkEmulation"]["PeriodicDisconnectionRate"].int_value();
-                    auto ConnectionTime = (unsigned int) g_json["ChaosConfiguration"]["NetworkEmulation"]["ConnectionTime"].int_value();
-                    auto DisconnectionTime = (unsigned int) g_json["ChaosConfiguration"]["NetworkEmulation"]["DisconnectionTime"].int_value();
-                    */
-                    break;
-                }
                 case Loss:
                 {
                     Netem.Type = Loss;
@@ -523,7 +512,7 @@ inline void RunNetworkEmulation()
                 {
                     Netem.Type = Latency;
                     netemLogType = "Latency emulation";
-                    auto delay = g_json["ChaosConfiguration"]["NetworkEmulation"]["LatencyDelay"].number_value();
+                    auto delay = g_json["ChaosConfiguration"]["NetworkEmulation"]["LatencyDelay"].int_value();
 
                     Netem.CmdArgs = "Bash/netem-latency.sh -ips=" + ips + " " + to_string(delay) + "ms " + " " +
                                     to_string(Netem.Duration) + "s";

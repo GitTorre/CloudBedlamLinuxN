@@ -4,10 +4,8 @@
     "Repeat": 1,
     "NetworkEmulation": {
       "Duration": 30,
-      "EmulationType": "Loss",
-      "LossType": "Burst",
-      "BurstRate": 0.25,
-      "LossRate": 0.35,
+      "EmulationType": "Latency",
+      "LatencyDelay": 1000,
       "Endpoints": [
         {
           "Port": 443,
@@ -25,14 +23,6 @@
           "Protocol": "ALL"
         }
       ]
-    },
-    "CpuPressure": {
-      "PressureLevel": 90,
-      "Duration": 15
-    },
-    "MemoryPressure": {
-      "PressureLevel": 90,
-      "Duration": 15
     }
   }
 }

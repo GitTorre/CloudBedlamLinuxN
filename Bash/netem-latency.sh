@@ -6,7 +6,7 @@ apt install iproute  2> /dev/null > /dev/null
 interface=$(ip -o link show | awk '{print $2,$9}' | grep UP | awk '{str = $0; sub(/: UP/,"",str); print str}')
 # vars
 delay="$2"
-duration="$4"
+duration="$3"
 TC=/sbin/tc 
 # Get the comma-delimited ip param value, set to var ipstring... 
 for i in "$@"

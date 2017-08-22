@@ -514,8 +514,7 @@ inline void RunNetworkEmulation()
                     netemLogType = "Latency emulation";
                     auto delay = g_json["ChaosConfiguration"]["NetworkEmulation"]["LatencyDelay"].int_value();
 
-                    Netem.CmdArgs = "Bash/netem-latency.sh -ips=" + ips + " " + to_string(delay) + "ms " + " " +
-                                    to_string(Netem.Duration) + "s";
+                    Netem.CmdArgs = "Bash/netem-latency.sh -ips=" + ips + " " + to_string(delay) + "ms " + to_string(Netem.Duration) + "s";
                     break;
                 }
                 case Reorder:

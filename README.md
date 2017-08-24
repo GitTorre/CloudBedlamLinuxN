@@ -21,7 +21,7 @@ Please make sure to add Chaos Monkey to your Chaos Engineering toolset. Netflix 
 
 CloudBedlam is meant to run chaos experiments <i>inside</i> VMs as a way to experiment close to your code and help you identify resiliency bugs in your design and implementation.
 
-### .NET (Mono is primary/up to date, .NET Core branch is not synched with Master...) version is <a href="https://github.com/GitTorre/CloudBedlamLinux"><b>here</b></a>
+### .NET (Mono and .NETCore 2.0) version is <a href="https://github.com/GitTorre/CloudBedlamLinux"><b>here</b></a>
 
 ### Note: 
 

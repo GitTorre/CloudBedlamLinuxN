@@ -82,7 +82,6 @@ typedef enum
     None,
     Bandwidth,
     Corruption,
-    Disconnect,
     Latency,
     Loss,
     Reorder
@@ -134,7 +133,7 @@ unsigned long long getTotalSystemMemory()
 {
     long pages = sysconf(_SC_PHYS_PAGES);
     long page_size = sysconf(_SC_PAGE_SIZE);
-    return pages * page_size;
+    return static_cast<unsigned long long int>(pages * page_size);
 }
 
 inline string hostname2ips(const string &hostname)
@@ -686,7 +685,6 @@ inline bool ParseConfigurationObjectAndInitialize()
                     {
                             { "Bandwidth", Bandwidth },
                             { "Corruption", Corruption },
-                            { "Disconnect", Disconnect },
                             { "Latency", Latency },
                             { "Loss", Loss },
                             { "Reorder", Reorder }

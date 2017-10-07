@@ -23,7 +23,7 @@
 #include <iostream>
 #include <memory>
 #include <sys/stat.h>
-#include <time.h>
+#include <ctime>
 #include <bits/stat.h>
 
 using namespace json11;

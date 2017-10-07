@@ -14,7 +14,6 @@
 #include <netdb.h>
 #include <string>
 #include <sys/wait.h>
-#include <zconf.h>
 #include <csignal>
 #include <cstring>
 #include <cstdlib>

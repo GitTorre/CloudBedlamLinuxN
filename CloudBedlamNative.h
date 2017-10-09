@@ -492,12 +492,14 @@ inline void RunNetworkEmulation()
                     bool isRandom = g_json["ChaosConfiguration"]["NetworkEmulation"]["LossRate"].is_number();
                     if(isRandom)
                     {
-                        lossRate = g_json["ChaosConfiguration"]["NetworkEmulation"]["LossRate"].number_value() * 100;
+                        lossRate = static_cast<int>(
+                                g_json["ChaosConfiguration"]["NetworkEmulation"]["LossRate"].number_value() * 100);
                     }
                     bool isBurst = g_json["ChaosConfiguration"]["NetworkEmulation"]["BurstRate"].is_number();
                     if(isBurst)
                     {
-                        burstRate = g_json["ChaosConfiguration"]["NetworkEmulation"]["BurstRate"].number_value() * 100;
+                        burstRate = static_cast<int>(
+                                g_json["ChaosConfiguration"]["NetworkEmulation"]["BurstRate"].number_value() * 100);
                     }
                     netemLogType = lossType + " Loss emulation";
 

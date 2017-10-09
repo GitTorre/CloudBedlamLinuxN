@@ -155,12 +155,12 @@ There is more work to do vis a vis network emulation: I need to add support for 
 <pre><code>
 clone...
 whomever:~/work/src$ git clone https://github.com/gittorre/CloudBedlamLinuxN
-whomever:~/work/src$ cd CBLinuxN
+whomever:~/work/src$ cd CloudBedlamLinuxN
 build...(really fast and easy with g++... you can also use cmake, if that is what you need to do...)
 g++ (if you don't already have it installed... sudo apt install g++):
-whomever:~/work/src/CloudBedlamLinuxN$ g++ -std=c++11 CloudBedlamNative.cpp json11.cpp -lpthread -o CBLinuxN
+whomever:~/work/src/CloudBedlamLinuxN$ g++ -std=c++11 CloudBedlamNative.cpp json11.cpp -lpthread -o CloudBedlam
 run... (this has run as sudo...)
-whomever:~/work/src/CloudBedlamLinuxN$ sudo ./CBLinuxN
+whomever:~/work/src/CloudBedlamLinuxN$ sudo ./CloudBedlam
 </code></pre>
 When running CloudBedlam, a bedlamlogs folder will be created in the folder where the CloudBedlam binary is running. Output file will contain info and error data...
 

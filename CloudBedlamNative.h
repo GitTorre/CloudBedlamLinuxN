@@ -789,12 +789,11 @@ inline void SetOperationsFromJsonAndRun()
 {
 	if (ParseConfigurationObjectAndInitialize())
 	{
-        //Delay run?
-        if (g_delay > 0)
-        {
-            sleep(g_delay);
-        }
-        //Bedlam time...
-        MakeBedlam();
+		//Delay run?
+		if (g_delay > 0)
+		{
+		    sleep(g_delay);
+		}
+		MakeBedlam();
 	}
 }

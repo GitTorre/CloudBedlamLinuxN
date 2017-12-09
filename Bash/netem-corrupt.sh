@@ -43,9 +43,8 @@ do
 	fi
 
 done
-# create the qdisc under existing root qdisc... establishing delay using netem corrupt...
 ${TC} qdisc add dev ${interface} parent 1:1 handle 2: netem corrupt ${ptcorruption}
-# keep configuration for the allotted time, then delete the qdiscs for $interface
+# keep configuration for the allotted time, then delete the qdiscs...
 sleep ${duration}
 ${TC} qdisc del dev ${interface} root    2> /dev/null > /dev/null
-# This introduces a single bit error at a random offset in the packet.
+

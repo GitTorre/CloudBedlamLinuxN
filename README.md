@@ -5,7 +5,7 @@
 
 -From Netflix's Principles of Chaos Engineering Manifesto => http://principlesofchaos.org 
 
-CloudBedlam is a simple, configurable, vm-local chaotic operation orchestrator for resiliency experimentation inside virtual machines. Configurable chaotic conditions are induced via fault injections and run inside individual VMs. It's an easy to use Chaos Engineering tool for running chaos experiments <i>close to your service binaries</i> - in the virtual machines where your services are running. This guarantees safe isolation - faults will only impact your VMs and therefore only your services will be impacted; no remote communication and control - of course, you may want to add this useful facility, in which case security will become a critical feature to get right. 
+CloudBedlam is a simple, configurable, machine-local chaotic operation orchestrator for resiliency experimentation inside virtual and physical machines. Configurable chaotic conditions are induced via fault injections and run inside individual VMs. It's an easy to use Chaos Engineering tool for running chaos experiments <i>close to your service binaries</i> - in the  machines where your services are running. This guarantees safe isolation - faults will only impact your VMs and therefore only your services will be impacted; no remote communication and control - of course, you may want to add this useful facility, in which case security will become a critical feature to get right. 
 
 CloudBedam is useful for exercising your resiliency design and implementation under realistic failure conditions, likely finding critical flaws that may occur in weeks, months or years in compressed time, perhaps in minutes and hours. 
 

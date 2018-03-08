@@ -15,7 +15,7 @@ Unlike, say, Netflix's ChaosMonkey, shooting down VM instances isn't the interes
 
 Hypothesis:  
 
-<i>There is a useful difference between machines that are running in configurably chaotic states versus VMs that pseudo-randomly disappear from the map.</i>  
+<i>There is a useful difference between machines that are running in configurably chaotic states versus machines that pseudo-randomly disappear from the map.</i>  
 
 Please make sure to add Chaos Monkey to your Chaos Engineering toolset. Netflix are the leaders in the Chaos Engineering domain (they invented the discipline!) and most of their tools are open source, even if baked into Spinnaker today (their open source CI/CD pipeline technology)). You can find very nice non-Spinnaker-embedded versions right here on GitHub, including <a href="https://github.com/mlafeldt/docker-simianarmy" target="_blank"> an almost-full Simian Army that has been containerized</a>!
 

@@ -5,21 +5,21 @@
 
 -From Netflix's Principles of Chaos Engineering Manifesto => http://principlesofchaos.org 
 
-CloudBedlam is a simple, configurable, machine-local chaotic operation orchestrator for resiliency experimentation inside virtual and physical machines. Configurable chaotic conditions are induced via fault injections and run inside individual VMs. It's an easy to use Chaos Engineering tool for running chaos experiments <i>close to your service binaries</i> - in the  machines where your services are running. This guarantees safe isolation - faults will only impact your VMs and therefore only your services will be impacted; no remote communication and control - of course, you may want to add this useful facility, in which case security will become a critical feature to get right. 
+CloudBedlam is a simple, configurable, machine-local chaotic operation orchestrator for resiliency experimentation inside virtual and physical machines. Configurable chaotic conditions are induced via fault injections and run inside individual machines. It's an easy to use Chaos Engineering tool for running chaos experiments <i>close to your service binaries</i> - in the  machines where your services are running. This guarantees safe isolation - faults will only impact your machines and therefore only your services running on them will be impacted...; no remote communication and control - of course, you may want to add this useful facility, in which case security will become a critical feature to get right. 
 
 CloudBedam is useful for exercising your resiliency design and implementation under realistic failure conditions, likely finding critical flaws that may occur in weeks, months or years in compressed time, perhaps in minutes and hours. 
 
 Network emulation inside a VM enables you to verify that your Internet-facing code handles network faults correctly and/or verify that your solutions to latent or disconnected traffic states work correctly. This will help you to refine your design or even establish for the first time how you react to and recover from transient networking problems in the cloud….
 
-Unlike, say, Netflix's ChaosMonkey, shooting down VM instances isn't the interesting chaos you create with CloudBedlam (though it is definitely interesting, incredibly useful chaos! – just different from what CloudBedlam is designed to help you experiment with…). Instead, CloudBedlam adds conditions to an otherwise happy VM that make it sad and troubled, turbulent and angry - not just killing it. 
+Unlike, say, Netflix's ChaosMonkey, shooting down VM instances isn't the interesting chaos you create with CloudBedlam (though it is definitely interesting, incredibly useful chaos! – just different from what CloudBedlam is designed to help you experiment with…). Instead, CloudBedlam adds conditions to an otherwise happy machine that make it sad and troubled, turbulent and angry - not just killing it. 
 
 Hypothesis:  
 
-<i>There is a useful difference between VMs that are running in configurably chaotic states versus VMs that pseudo-randomly disappear from the map.</i>  
+<i>There is a useful difference between machines that are running in configurably chaotic states versus VMs that pseudo-randomly disappear from the map.</i>  
 
 Please make sure to add Chaos Monkey to your Chaos Engineering toolset. Netflix are the leaders in the Chaos Engineering domain (they invented the discipline!) and most of their tools are open source, even if baked into Spinnaker today (their open source CI/CD pipeline technology)). You can find very nice non-Spinnaker-embedded versions right here on GitHub, including <a href="https://github.com/mlafeldt/docker-simianarmy" target="_blank"> an almost-full Simian Army that has been containerized</a>!
 
-CloudBedlam is meant to run chaos experiments <i>inside</i> VMs as a way to experiment close to your code and help you identify resiliency bugs in your design and implementation.
+CloudBedlam is meant to run chaos experiments <i>inside</i> machines as a way to experiment close to your code and help you identify resiliency bugs in your design and implementation in compressed time.
 
 ### .NET (Mono and .NETCore 2.0) version is <a href="https://github.com/GitTorre/CloudBedlamLinux"><b>here</b></a>
 

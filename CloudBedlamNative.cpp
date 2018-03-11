@@ -8,7 +8,7 @@ int main()
 	for (auto i = 0; i < g_repeat + 1; i++)
 	{
 		//Parse config, set operation objects, run...
-		SetOperationsFromJsonAndRun();
+		Run();
 	}
 	g_logger->info("The End");
 	return 0;

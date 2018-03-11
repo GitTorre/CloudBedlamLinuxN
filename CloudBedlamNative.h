@@ -573,9 +573,9 @@ inline void InitGlobals()
 
 }
 
-inline bool ParseConfigurationObjectAndInitialize()
+inline bool Initialize()
 {
-	if (g_json == nullptr)//so, first run (not a repeat run...)...
+    if (g_json == nullptr)//so, first run (not a repeat run...)...
 	{
 		ifstream chaos_config("chaos.json");
 		if (chaos_config.is_open())
@@ -785,9 +785,9 @@ inline void MakeBedlam()
 	}
 }
 
-inline void SetOperationsFromJsonAndRun()
+inline void Run()
 {
-	if (ParseConfigurationObjectAndInitialize())
+    if (Initialize())
 	{
 		//Delay run?
 		if (g_delay > 0)

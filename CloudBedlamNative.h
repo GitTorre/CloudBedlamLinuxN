@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 #include <ctime>
 #include <bits/stat.h>
+#include <bits/stdc++.h>
 
 using namespace json11;
 using namespace std;
